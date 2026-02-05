@@ -1,0 +1,20 @@
+.charge-row {
+    display: grid;
+    grid-template-columns: [source] 1fr [usage] 1fr [uom] 1fr [cost] 1fr;
+
+    .source {
+        grid-area: source;
+    }
+
+    .usage {
+        grid-area: usage;
+    }
+
+    .uom {
+        grid-area: uom;
+    }
+
+    .cost {
+        grid-area: cost;
+    }
+}
