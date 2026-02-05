@@ -14,4 +14,5 @@ export default defineConfig({
     target: 'esnext',
     sourcemap: true
   },
+  base: "https://bhandziuk.github.io/EnergyTransition/",
 });
