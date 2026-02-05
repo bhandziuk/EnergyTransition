@@ -13,6 +13,5 @@ export default defineConfig({
     emptyOutDir: true, // also necessary
     target: 'esnext',
     sourcemap: true
-  },
-  base: "/EnergyTransition/",
+  }
 });
