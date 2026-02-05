@@ -9,7 +9,7 @@ export default defineConfig({
   },
   // root: './src',
   build: {
-    outDir: '../UtilityAnalysis/wwwroot',
+    outDir: '../dist',
     emptyOutDir: true, // also necessary
     target: 'esnext',
     sourcemap: true
