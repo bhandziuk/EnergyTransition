@@ -8,6 +8,7 @@ export interface FlatCharge {
 }
 
 
+
 export class GasMarketerFee implements FlatCharge {
     constructor(private year: number) {
 

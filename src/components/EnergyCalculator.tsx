@@ -1,9 +1,17 @@
 import { Component, createMemo } from "solid-js";
 import { dddc, DddcCalculator } from "./DddcCalculator";
-import { UsageBasedCharge, AglBaseCharge, ElectricalEnergyScenario, EnergyScenario, FlatCharge, GasEnergyScenario, GasMarketerFee } from "../energy";
+import { UsageBasedCharge, AglBaseCharge, ElectricalEnergyScenario, EnergyScenario, FlatCharge, GasEnergyScenario, GasMarketerFee, GasFurnace, GasWaterHeater, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalHeatPump } from "../energy";
+import { NumberFormats } from "../helpers/NumbersFormats";
+
+const dollars = NumberFormats.dollarsFormat().format;
 
 const year = createMemo(() => 2025);
 
+const gasRate = createMemo(() => 0.75); // $/therm
+const electricalRate = createMemo(() => 0.1643); // $/kWh
+
+const electricalSpaceHeating = createMemo(() => 10896); // kWh
+const totalElectricalUsage = createMemo(() => electricalSpaceHeating());// kWh
 
 class CombinedEnergyScenario {
 
@@ -12,8 +20,14 @@ class CombinedEnergyScenario {
     }
 
     public render: Component = (props) => <>
-        <label>{this.scenarioName}</label>
+        <h2>{this.scenarioName}</h2>
         {this.parts.map(part => part.render(props))}
+        {
+            <div class="charge-row">
+                <div class="source"><h3>Total Cost</h3></div>
+                <div class="cost">{dollars(this.parts.map(part => part.cost()).reduce((acc, val) => acc + val, 0))}</div>
+            </div>
+        }
     </>
 }
 
@@ -23,7 +37,8 @@ const baseline = createMemo(() => {
         new GasMarketerFee(year())
     ];
     const gasUses: Array<UsageBasedCharge> = [
-
+        new GasFurnace(0.9, 276, gasRate()),
+        new GasWaterHeater(1, 144, gasRate())
     ];
 
     const gasBaseScenario = new GasEnergyScenario(gasUses, gasFlatCharges);
@@ -32,7 +47,9 @@ const baseline = createMemo(() => {
 
     ];
     const electricalUses: Array<UsageBasedCharge> = [
-
+        new GeorgiaPowerEnvironmentalFee(year(), totalElectricalUsage()),
+        new GeorgiaPowerFranchiseFee(year(), totalElectricalUsage()),
+        new ElectricalHeatPump(year(), 0.9, electricalSpaceHeating(), electricalRate())
     ];
 
     const electricalBaseScenario = new ElectricalEnergyScenario(electricalUses, electricalFlatCharges);
@@ -49,7 +66,6 @@ const EnergyCalculator: Component = (props) => {
             <h1>Home Energy Use Calculator</h1>
             <h2>DDDC Calculation</h2>
             <DddcCalculator></DddcCalculator>
-            <h2>Baseline</h2>
             {baseline().render(props)}
         </>
     );

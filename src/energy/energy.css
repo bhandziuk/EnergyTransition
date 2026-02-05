@@ -1,6 +1,8 @@
 .charge-row {
     display: grid;
-    grid-template-columns: [source] 1fr [usage] 1fr [uom] 1fr [cost] 1fr;
+    grid-template-columns: [source] 1fr [usage] 1fr [usage-uom] 1fr [cost] 1fr;
+    padding-left: 2em;
+    align-items: center;
 
     .source {
         grid-area: source;
@@ -8,13 +10,31 @@
 
     .usage {
         grid-area: usage;
+        text-align: right;
+        padding-right: 5px;
+
     }
 
-    .uom {
-        grid-area: uom;
+    .usage-uom {
+        grid-area: usage-uom;
+        text-align: left;
     }
 
     .cost {
         grid-area: cost;
+        text-align: right;
+        padding-right: 2em;
     }
+}
+
+.scenario-source-section {
+    padding-left: 2em;
+}
+
+.scenario-source-charges-section {
+    padding-left: 2em;
+}
+
+.bold {
+    font-weight: bold;
 }

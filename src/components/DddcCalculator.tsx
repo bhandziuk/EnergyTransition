@@ -1,9 +1,9 @@
 import { Accessor, Component, createMemo, createSignal } from "solid-js";
 import { NumberFormats } from "../helpers/NumbersFormats";
 
-const [julyConsumption, setJulyConsumption] = createSignal(0);
-const [juneConsumption, setJuneConsumption] = createSignal(0);
-const [januaryConsumption, setJanuaryConsumption] = createSignal(0);
+const [julyConsumption, setJulyConsumption] = createSignal(12);
+const [juneConsumption, setJuneConsumption] = createSignal(12);
+const [januaryConsumption, setJanuaryConsumption] = createSignal(32);
 
 const numberFormat = NumberFormats.integersFormat().format;
 

@@ -17,7 +17,7 @@ export class NumberFormats {
 
     /** Will use thousands separators */
     public static numberCommasFormat() {
-        return new Intl.NumberFormat('en-US', { useGrouping: true, maximumFractionDigits: 1, minimumFractionDigits: 1 });
+        return new Intl.NumberFormat('en-US', { useGrouping: true, maximumFractionDigits: 0, minimumFractionDigits: 0 });
     }
 
     public static percentFormat() {
