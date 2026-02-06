@@ -1,8 +1,8 @@
+/// <reference types="vite/client" />
 /* @refresh reload */
 import 'solid-devtools';
 import { render } from 'solid-js/web';
 import { A, Route, Router } from "@solidjs/router";
-import { Component } from 'solid-js';
 import { EnergyCalculator } from './components/EnergyCalculator';
 
 const root = document.getElementById('root');
@@ -13,22 +13,14 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-const Home: Component = (props) => {
-  return (
-    <>
-
-    </>
-  );
-};
-
 const App = (props: any) => (
   <>
-    <nav>
+
+    {/*
+   <nav>
       <A href="/">Home</A>
-      {/* <A href="/energy/daily">Daily</A>
-      <A href="/energy/monthly">Monthly</A>
-      <A href="/energy/calculator">Calculator</A> */}
     </nav>
+    */}
     {props.children}
 
   </>
@@ -42,7 +34,8 @@ render(() =>
   </Router>
   , root!);
 
-
+export * from './energy';
+export * from './components';
 
 
 

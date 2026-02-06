@@ -17,9 +17,15 @@
     "strict": true,
     "types": [
       "vite/client"
+    ],
+    "lib": [
+      "ESNext",
+      "DOM"
     ]
   },
-  // "include": [
-  //   "energy/rates.json"
-  // ]
+  "include": [
+    "src",
+    "vite.config.*",
+    "env.d.ts"
+  ]
 }

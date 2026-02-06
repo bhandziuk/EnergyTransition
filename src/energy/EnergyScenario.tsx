@@ -1,91 +1,170 @@
-import { Component } from "solid-js";
-import { FlatCharge } from "./FlatCharge";
-import { UsageBasedCharge } from "./UsageBasedCharge";
+import { Component, Show } from "solid-js";
+import { FlatCharge } from "../costs/FlatCharge";
 import './energy.css';
 import { NumberFormats } from "../helpers/NumbersFormats";
+import { DirectUsageBasedCharge } from "./usageBasedCharges";
+import { IndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
+import { SalesTax, TaxCharge } from "../costs";
+import { calculateDirectCosts, RateSchedule } from "./usageBasedCharges/RateSchedule";
+import { MonthUsage } from "./MonthUsage";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
-export class GasEnergyScenario implements EnergyScenario {
 
-    constructor(private uses: Array<UsageBasedCharge>, private flatCharges: Array<FlatCharge>) {
+export class EnergyScenario {
 
-    }
+    private taxes: Array<TaxCharge> = [
+        new SalesTax(0.08)
+    ];
 
-    public render: Component = (props) => <div class="scenario-source-section">
-        <h3>Gas</h3>
-        <div class="scenario-source-charges-section">
-            {renderFlatCharges(this.flatCharges)(props)}
-            {renderUsageCharges(this.uses)(props)}
-        </div>
-    </div>
-
-    public cost() {
-        return this.flatCharges.map(o => o.cost())
-            .concat(this.uses.map(o => o.cost()))
-            .reduce((acc, val) => acc + val, 0);
-    };
-}
-
-export class ElectricalEnergyScenario implements EnergyScenario {
-    constructor(private uses: Array<UsageBasedCharge>, private flatCharges: Array<FlatCharge>) {
+    constructor(
+        public scenarioFuelType: string,
+        private directUses: Array<DirectUsageBasedCharge>,
+        private indirectUses: Array<IndirectUsageBasedCharge>,
+        private flatCharges: Array<FlatCharge>,
+        private rateSchedule: Array<RateSchedule>
+    ) {
 
     }
 
-    public render: Component = (props) => <div class="scenario-source-section">
-        <h3>Electrical</h3>
-        <div class="scenario-source-charges-section">
-            {renderFlatCharges(this.flatCharges)(props)}
-            {renderUsageCharges(this.uses)(props)}
-        </div>
-    </ div>
+    public render: Component = (props) => {
+        const totalCharges = this.totalCost();
+
+        return <div class="scenario-source-section">
+            <h3>{this.scenarioFuelType}</h3>
+            <div class="scenario-source-charges-section">
+                {this.renderFlatCharges(props)}
+                {this.renderDirectUsageCharges(props)}
+                {this.renderIndirectUsageCharges(props)}
+                {this.renderTaxCharges(props)}
+                <div class="total-row">
+                    <div class="source"><h3>{this.scenarioFuelType} total costs</h3></div>
+                    <div class="cost bold">{dollars(totalCharges)}</div>
+                </div>
+            </div>
+        </ div>
+    }
 
     public cost() {
-        return this.flatCharges.map(o => o.cost())
-            .concat(this.uses.map(o => o.cost()))
-            .reduce((acc, val) => acc + val, 0);
+        return this.totalCost();
     };
-}
-
-function renderUsageCharges(uses: Array<UsageBasedCharge>): Component {
-    return (props) => <>
-        <h4>Volumetric uses charges</h4>
-        {
-            uses.map(o =>
-                <div class="charge-row">
-                    <div class="source">{o.source}</div>
-                    <div class="usage">{o.usageFormatted()}</div>
-                    <div class="cost">{dollars(o.cost())}</div>
-                </div>
-            )
-        }
-        <div class="charge-row">
-            <div class="source"><h4>Total Cost</h4></div>
-            <div class="cost bold">{dollars(uses.map(part => part.cost()).reduce((acc, val) => acc + val, 0))}</div>
-        </div>
-    </>
-}
-
-function renderFlatCharges(flatCharges: Array<FlatCharge>): Component {
-    return (props) => <>
-        <h4>Fixed charges</h4>
-        {
-            flatCharges.map(o =>
-                <div class="charge-row">
-                    <div class="source">{o.source}</div>
-                    <div class="cost">{dollars(o.cost())}</div>
-                </div>
-            )
-        }
-        <div class="charge-row">
-            <div class="source"><h4>Total Cost</h4></div>
-            <div class="cost bold">{dollars(flatCharges.map(part => part.cost()).reduce((acc, val) => acc + val, 0))}</div>
-        </div>
-    </>
-}
 
 
-export interface EnergyScenario {
-    render: Component;
-    cost: () => number;
+    private totalCost() {
+
+        const taxableSubtotal_dollars = this.taxableSubtotalCost();
+        const tax_dollars = this.taxCost(taxableSubtotal_dollars);
+
+        return taxableSubtotal_dollars + tax_dollars;
+    }
+
+    private directCosts() {
+        const totalUsage = this.directUsage();
+        return calculateDirectCosts(this.rateSchedule, totalUsage);
+    }
+
+    private directUsage() {
+        return this.directUses.map(o => o.usage).reduce((acc, val) => acc + val, 0);
+    }
+
+    private indirectCosts() {
+        const directCosts_dollars = this.directCosts();
+        const directUsage_kwh = this.directUsage();
+        return this.indirectUses.map(o => o.cost(directCosts_dollars, directUsage_kwh)).reduce((acc, val) => acc + val, 0);
+    }
+
+    private flatCosts() {
+        return this.flatCharges.map(o => o.cost()).reduce((acc, val) => acc + val, 0);
+    }
+
+    private taxableSubtotalCost() {
+        const directCosts_dollars = this.directCosts();
+        const indirectCosts_dollars = this.indirectCosts();
+        const flatCosts_dollars = this.flatCosts();
+        return directCosts_dollars + indirectCosts_dollars + flatCosts_dollars;
+    }
+
+    private taxCost(taxableSubtotal_dollars: number) {
+        return this.taxes.map(o => o.cost(taxableSubtotal_dollars)).reduce((acc, val) => acc + val, 0)
+    }
+
+    private renderTaxCharges: Component = (props: any) => {
+        const taxableSubtotal_dollars = this.taxableSubtotalCost();
+
+        return <Show when={this.taxes.length}>
+            <h4>Tax</h4>
+            {
+                this.taxes.map(o =>
+                    <div class="charge-row">
+                        <div class="source">{o.source}</div>
+                        <div class="usage">{o.usageFormatted()}</div>
+                        <div class="cost">{dollars(o.cost(taxableSubtotal_dollars))}</div>
+                    </div>
+                )
+            }
+            <div class="charge-row">
+                <div class="source"><h4>Tax cost</h4></div>
+                <div class="cost bold">{dollars(this.taxCost(taxableSubtotal_dollars))}</div>
+            </div>
+        </Show>
+    }
+
+    private renderIndirectUsageCharges: Component = (props: any) => {
+        const directCosts_dollars = this.directCosts();
+        const directUsage_kwh = this.directUsage();
+        const indirectCosts_dollars = this.indirectCosts();
+
+        return <Show when={this.indirectUses.length}>
+            <h4>Service subtotal</h4>
+            {
+                this.indirectUses.map(o =>
+                    <div class="charge-row">
+                        <div class="source">{o.source}</div>
+                        <div class="usage">{o.usageFormatted()}</div>
+                        <div class="cost">{dollars(o.cost(directCosts_dollars, directUsage_kwh))}</div>
+                    </div>
+                )
+            }
+            <div class="charge-row">
+                <div class="source"><h4>Service subtotal cost</h4></div>
+                <div class="cost bold">{dollars(indirectCosts_dollars)}</div>
+            </div>
+        </Show>
+    }
+
+    private renderDirectUsageCharges: Component = (props: any) => {
+        return <Show when={this.directUses.length}>
+            <h4>Volumetric usage base charges</h4>
+            {
+                this.directUses.map(o =>
+                    <div class="charge-row">
+                        <div class="source">{o.source}</div>
+                        <div class="usage">{o.usageFormatted()}</div>
+                    </div>
+                )
+            }
+            <div class="charge-row">
+                <div class="source"><h4>Total usage costs</h4></div>
+                <div class="cost bold">{dollars(this.directCosts())}</div>
+            </div>
+        </ Show>
+    }
+
+    private renderFlatCharges: Component = (props: any) => {
+        return <Show when={this.flatCharges.length}>
+            <h4>Fixed charges</h4>
+            {
+                this.flatCharges.map(o =>
+                    <div class="charge-row">
+                        <div class="source">{o.source}</div>
+                        <div class="cost">{dollars(o.cost())}</div>
+                    </div>
+                )
+            }
+            <div class="charge-row">
+                <div class="source"><h4>Total flat costs</h4></div>
+                <div class="cost bold">{dollars(this.flatCosts())}</div>
+            </div>
+        </Show>
+    }
 }

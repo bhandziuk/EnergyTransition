@@ -1,7 +1,11 @@
 .charge-row {
-    display: grid;
-    grid-template-columns: [source] 1fr [usage] 1fr [usage-uom] 1fr [cost] 1fr;
     padding-left: 2em;
+}
+
+.charge-row,
+.total-row {
+    display: grid;
+    grid-template-columns: [source] 3fr [usage] 1fr [usage-uom] 1fr [cost] 1fr;
     align-items: center;
 
     .source {
@@ -33,8 +37,21 @@
 
 .scenario-source-charges-section {
     padding-left: 2em;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
 }
 
 .bold {
     font-weight: bold;
+}
+
+.scenario-breakdown {
+    max-width: 50em;
 }
