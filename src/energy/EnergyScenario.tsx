@@ -1,15 +1,13 @@
 import { Component, Show } from "solid-js";
+import { ITaxCharge, SalesTax } from "../costs";
 import { IFlatCharge } from "../costs/FlatCharge";
-import './energy.css';
 import { NumberFormats } from "../helpers/NumbersFormats";
+import './energy.css';
 import { IDirectUsageBasedCharge, UnitOfMeasure } from "./usageBasedCharges";
 import { IIndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
-import { SalesTax, ITaxCharge } from "../costs";
 import { calculateDirectCosts, RateSchedule } from "./usageBasedCharges/RateSchedule";
-import { IMonthUsage } from "./MonthUsage";
 
 const dollars = NumberFormats.dollarsFormat().format;
-
 
 export class EnergyScenario {
 
@@ -72,8 +70,8 @@ export class EnergyScenario {
 
     private indirectCosts() {
         const directCosts_dollars = this.directCosts();
-        const directUsage_kwh = this.directUsage();
-        return this.indirectUses.map(o => o.cost(directCosts_dollars, directUsage_kwh)).reduce((acc, val) => acc + val, 0);
+        const directUsage_inScenarioUom = this.directUsage();
+        return this.indirectUses.map(o => o.cost(directCosts_dollars, directUsage_inScenarioUom)).reduce((acc, val) => acc + val, 0);
     }
 
     private flatCosts() {
@@ -114,7 +112,7 @@ export class EnergyScenario {
 
     private renderIndirectUsageCharges: Component = (props: any) => {
         const directCosts_dollars = this.directCosts();
-        const directUsage_kwh = this.directUsage();
+        const directUsage_inScenarioUom = this.directUsage();
         const indirectCosts_dollars = this.indirectCosts();
 
         return <Show when={this.indirectUses.length}>
@@ -124,7 +122,7 @@ export class EnergyScenario {
                     <div class="charge-row">
                         <div class="source">{o.source}</div>
                         <div class="usage">{o.usageFormatted()}</div>
-                        <div class="cost">{dollars(o.cost(directCosts_dollars, directUsage_kwh))}</div>
+                        <div class="cost">{dollars(o.cost(directCosts_dollars, directUsage_inScenarioUom))}</div>
                     </div>
                 )
             }
