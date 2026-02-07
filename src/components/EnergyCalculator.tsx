@@ -1,6 +1,6 @@
-import { Component, createEffect, createMemo } from "solid-js";
+import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
 import { dddc, DddcCalculator } from "./DddcCalculator";
-import { IDirectUsageBasedCharge, AglBaseCharge, EnergyScenario, IFlatCharge, GasMarketerFee, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelHeatPump } from "../energy";
+import { IDirectUsageBasedCharge, AglBaseCharge, EnergyScenario, IFlatCharge, GasMarketerFee, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelHeatPump, ElectricalResistiveWaterHeater, Sinks } from "../energy";
 import { NumberFormats } from "../helpers";
 
 const dollars = NumberFormats.dollarsFormat().format;
@@ -11,6 +11,51 @@ const electricalSpaceHeating = createMemo(() => new MeasuredValue(250, "kWh"));
 const otherHouseholdElectricalUsage = createMemo(() => new MeasuredValue(10896, "kWh"));
 
 const totalElectricalUsage = createMemo(() => electricalSpaceHeating().combine([otherHouseholdElectricalUsage()]));
+
+const sinkNames = {
+    [Sinks.dualFuelHeatPump]: DualFuelHeatPump.displayName,
+    [Sinks.electricalHeatPump]: ElectricalHeatPump.displayName,
+    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
+    [Sinks.gasFurnace]: GasFurnace.displayName,
+    [Sinks.gasWaterHeater]: GasWaterHeater.displayName,
+    // [Sinks.hybridHeatPump]: HybridHeatPump.displayName,
+}
+
+const initialBaselineSinks = [
+    { id: Sinks.dualFuelHeatPump, selected: false },
+    { id: Sinks.gasFurnace, selected: true },
+    { id: Sinks.gasWaterHeater, selected: true },
+];
+
+const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
+
+const baselineSinksComponent = () => <>
+    <ul>
+        {baselineSinks().toSorted((a, b) => sinkNames[a.id].localeCompare(sinkNames[b.id]))
+            .map(sink =>
+                <li class="no-marker">
+                    <input type="checkbox"
+                        id={sink.id}
+                        checked={sink.selected}
+                        oninput={e => setBaselineSinks(baselineSinks().filter(o => o.id != sink.id).concat([{ id: sink.id, selected: e.target.checked }]))} />
+                    <label for={sink.id}>{sinkNames[sink.id]}</label>
+                </li>
+            )}
+    </ul>
+</>
+
+const initialBaselineSummaryUsage = {
+    highestElectrical: new MeasuredValue(0, 'kWh'),
+    lowestElectrical: new MeasuredValue(0, 'kWh'),
+    highestGas: new MeasuredValue(0, 'CCF'),
+    lowestGas: new MeasuredValue(0, 'CCF'),
+}
+
+const [baselineSummaryUsage, setBaselineSummaryUsage] = createSignal();
+
+const baselineUsageComponent = () => <>
+
+</>
 
 const georgiaPowerRateSchedule = [
     new RateSchedule("Summer rate schedule", [6, 7, 8, 9], [
@@ -92,8 +137,12 @@ const EnergyCalculator: Component = (props) => {
     return (
         <>
             <h1>Home Energy Use Calculator</h1>
-            <h2>DDDC Calculation</h2>
-            <DddcCalculator></DddcCalculator>
+            <h2>What are your current gas appliances?</h2>
+            {baselineSinksComponent()}
+            <Show when={baselineSinks().some(o => o.selected)}>
+                <h2>DDDC Calculation</h2>
+                <DddcCalculator></DddcCalculator>
+            </Show>
             {baseline().render(props)}
         </>
     );

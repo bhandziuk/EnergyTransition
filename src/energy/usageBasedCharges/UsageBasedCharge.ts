@@ -31,6 +31,6 @@ export class MeasuredValue {
     }
 }
 
-export type UnitOfMeasure = 'therm' | 'kWh';
+export type UnitOfMeasure = 'therm' | 'kWh' | 'CCF';
 
 export type Purpose = 'Space heating' | 'Water heating' | 'Cooking' | 'Other';

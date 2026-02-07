@@ -55,3 +55,7 @@
 .scenario-breakdown {
     max-width: 50em;
 }
+
+.no-marker {
+    list-style-type: none;
+}

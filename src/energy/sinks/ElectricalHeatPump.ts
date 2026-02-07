@@ -8,9 +8,10 @@ export class ElectricalHeatPump implements IDirectUsageBasedCharge {
 
     public usage: MeasuredValue[];
     public usageFormatted = () => this.electricalUsage.formatted();
-    public displayName: string = 'Electrical heat pump';
+    public static displayName: string = 'Electrical heat pump';
     public id: string = Sinks.electricalHeatPump;
     public purpose: Purpose = 'Space heating';
+    displayName = ElectricalHeatPump.displayName;
 }
 
 

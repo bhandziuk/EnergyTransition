@@ -8,8 +8,8 @@ export class GasWaterHeater implements IDirectUsageBasedCharge {
     }
     usage: MeasuredValue[];
     id: string = Sinks.gasWaterHeater;
-    displayName: string = 'Gas water heater';
+    public static displayName: string = 'Gas water heater';
     purpose: Purpose = 'Water heating';
-
+    displayName: string = GasWaterHeater.displayName;
     public usageFormatted = () => this.gasUsage.formatted();
 }

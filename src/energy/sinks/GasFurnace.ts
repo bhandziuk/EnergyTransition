@@ -8,8 +8,8 @@ export class GasFurnace implements IDirectUsageBasedCharge {
     }
     public usage: MeasuredValue[];
     id: string = Sinks.gasFurnace;
-    displayName: string = 'Gas furnace';
+    public static displayName: string = 'Gas furnace';
     purpose: Purpose = 'Space heating';
-
+    displayName = GasFurnace.displayName;
     public usageFormatted = () => this.gasUsage.formatted();
 }

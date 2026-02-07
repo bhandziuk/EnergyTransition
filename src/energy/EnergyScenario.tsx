@@ -3,9 +3,8 @@ import { ITaxCharge, SalesTax } from "../costs";
 import { IFlatCharge } from "../costs/FlatCharge";
 import { NumberFormats } from "../helpers/NumbersFormats";
 import './energy.css';
-import { IDirectUsageBasedCharge, UnitOfMeasure } from "./usageBasedCharges";
+import { IDirectUsageBasedCharge, UnitOfMeasure, calculateDirectCosts, RateSchedule } from "./usageBasedCharges";
 import { IIndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
-import { calculateDirectCosts, RateSchedule } from "./usageBasedCharges/RateSchedule";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -22,9 +21,7 @@ export class EnergyScenario {
         private indirectUses: Array<IIndirectUsageBasedCharge>,
         private flatCharges: Array<IFlatCharge>,
         private rateSchedule: Array<RateSchedule>
-    ) {
-
-    }
+    ) { }
 
     public render: Component = (props) => {
         const totalCharges = this.totalCost();
@@ -47,7 +44,6 @@ export class EnergyScenario {
     public cost() {
         return this.totalCost();
     };
-
 
     private totalCost() {
 
