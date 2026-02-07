@@ -1,6 +1,6 @@
-import { TaxCharge } from "./TaxCharge";
+import { ITaxCharge } from "./TaxCharge";
 
-export class SalesTax implements TaxCharge {
+export class SalesTax implements ITaxCharge {
 
     constructor(private rate: number) {
 

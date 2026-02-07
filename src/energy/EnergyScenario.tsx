@@ -1,27 +1,28 @@
 import { Component, Show } from "solid-js";
-import { FlatCharge } from "../costs/FlatCharge";
+import { IFlatCharge } from "../costs/FlatCharge";
 import './energy.css';
 import { NumberFormats } from "../helpers/NumbersFormats";
-import { DirectUsageBasedCharge } from "./usageBasedCharges";
-import { IndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
-import { SalesTax, TaxCharge } from "../costs";
+import { IDirectUsageBasedCharge, UnitOfMeasure } from "./usageBasedCharges";
+import { IIndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
+import { SalesTax, ITaxCharge } from "../costs";
 import { calculateDirectCosts, RateSchedule } from "./usageBasedCharges/RateSchedule";
-import { MonthUsage } from "./MonthUsage";
+import { IMonthUsage } from "./MonthUsage";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
 
 export class EnergyScenario {
 
-    private taxes: Array<TaxCharge> = [
+    private taxes: Array<ITaxCharge> = [
         new SalesTax(0.08)
     ];
 
     constructor(
         public scenarioFuelType: string,
-        private directUses: Array<DirectUsageBasedCharge>,
-        private indirectUses: Array<IndirectUsageBasedCharge>,
-        private flatCharges: Array<FlatCharge>,
+        public scenarioUom: UnitOfMeasure,
+        private directUses: Array<IDirectUsageBasedCharge>,
+        private indirectUses: Array<IIndirectUsageBasedCharge>,
+        private flatCharges: Array<IFlatCharge>,
         private rateSchedule: Array<RateSchedule>
     ) {
 
@@ -64,7 +65,9 @@ export class EnergyScenario {
     }
 
     private directUsage() {
-        return this.directUses.map(o => o.usage).reduce((acc, val) => acc + val, 0);
+        return this.directUses.flatMap(o => o.usage)
+            .filter(o => o.uom == this.scenarioUom)
+            .reduce((acc, val) => acc + val.value, 0);
     }
 
     private indirectCosts() {
@@ -133,15 +136,17 @@ export class EnergyScenario {
     }
 
     private renderDirectUsageCharges: Component = (props: any) => {
-        return <Show when={this.directUses.length}>
+        return <Show when={this.directUses.filter(o => o.usage.some(use => use.uom == this.scenarioUom)).length}>
             <h4>Volumetric usage base charges</h4>
             {
-                this.directUses.map(o =>
-                    <div class="charge-row">
-                        <div class="source">{o.source}</div>
-                        <div class="usage">{o.usageFormatted()}</div>
-                    </div>
-                )
+                this.directUses
+                    .filter(o => o.usage.some(use => use.uom == this.scenarioUom))
+                    .map(o =>
+                        <div class="charge-row">
+                            <div class="source">{o.displayName}</div>
+                            <div class="usage">{o.usageFormatted(this.scenarioUom)}</div>
+                        </div>
+                    )
             }
             <div class="charge-row">
                 <div class="source"><h4>Total usage costs</h4></div>

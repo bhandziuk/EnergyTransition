@@ -1,7 +1,7 @@
-import { MonthUsage } from "../MonthUsage";
+import { IMonthUsage } from "../MonthUsage";
 
 export class RateSchedule {
-    constructor(public name: string, public applicableMonths: Array<number>, public rates: Array<RateBin>) {
+    constructor(public name: string, public applicableMonths: Array<number>, public rates: Array<IRateBin>) {
 
     }
 
@@ -21,17 +21,17 @@ export class RateSchedule {
     }
 }
 
-export interface RateBin {
+export interface IRateBin {
     name: string,
     upperLimit: number,
     rate: number,
     limitUom: string
 }
 
-export function calculateDirectCosts(rateSchedule: Array<RateSchedule>, usage: number | Array<MonthUsage>) {
+export function calculateDirectCosts(rateSchedule: Array<RateSchedule>, usage: number | Array<IMonthUsage>) {
 
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    const usageByMonth = usage instanceof Array ? usage : months.map(month => ({ month: month, usage: usage / 12 } as MonthUsage));
+    const usageByMonth = usage instanceof Array ? usage : months.map(month => ({ month: month, usage: usage / 12 } as IMonthUsage));
     return rateSchedule
         .map(rate => {
             const usageInWindow = usageByMonth.filter(o => rate.applicableMonths.includes(o.month)).reduce((acc, val) => acc + val.usage, 0);

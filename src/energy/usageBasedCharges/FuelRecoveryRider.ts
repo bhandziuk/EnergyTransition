@@ -1,8 +1,8 @@
-import { MonthUsage } from "../MonthUsage";
-import { IndirectUsageBasedCharge } from "./IndirectUsageBasedCharge";
+import { IMonthUsage } from "../MonthUsage";
+import { IIndirectUsageBasedCharge } from "./IndirectUsageBasedCharge";
 import { calculateDirectCosts, RateSchedule } from "./RateSchedule";
 
-export class FuelRecoveryRider implements IndirectUsageBasedCharge {
+export class FuelRecoveryRider implements IIndirectUsageBasedCharge {
     constructor(private year: number) {
 
     }
@@ -17,7 +17,7 @@ export class FuelRecoveryRider implements IndirectUsageBasedCharge {
         ]
     };
 
-    public cost(subtotal_dollars: number, usage_kwh: number | Array<MonthUsage>) {
+    public cost(subtotal_dollars: number, usage_kwh: number | Array<IMonthUsage>) {
         // https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/
         return calculateDirectCosts(this.rateScheduleByYear[this.year], usage_kwh);
     }

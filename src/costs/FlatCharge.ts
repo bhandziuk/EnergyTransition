@@ -2,14 +2,14 @@ import { DateTime } from "luxon";
 import rates from "../rates.json";
 type RateSet = typeof rates[0];
 
-export interface FlatCharge {
+export interface IFlatCharge {
     source: string
     cost: () => number;
 }
 
 
 
-export class GasMarketerFee implements FlatCharge {
+export class GasMarketerFee implements IFlatCharge {
     constructor(private year: number) {
 
     }
@@ -21,7 +21,7 @@ export class GasMarketerFee implements FlatCharge {
     }
 }
 
-export class AglBaseCharge implements FlatCharge {
+export class AglBaseCharge implements IFlatCharge {
 
     private yearMonths: Array<string> = [];
 

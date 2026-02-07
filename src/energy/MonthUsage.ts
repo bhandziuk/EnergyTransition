@@ -1,4 +1,4 @@
-export interface MonthUsage {
+export interface IMonthUsage {
     month: number,
     usage: number
 }
