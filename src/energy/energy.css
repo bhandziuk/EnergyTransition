@@ -2,6 +2,10 @@
     padding-left: 2em;
 }
 
+.charge-row:not(.total) {
+    border-bottom: 1px solid #dbdbdb;
+}
+
 .charge-row,
 .total-row {
     display: grid;

@@ -2,6 +2,7 @@ import { Component, createEffect, createMemo, createSignal, Show } from "solid-j
 import { dddc, DddcCalculator } from "./DddcCalculator";
 import { IDirectUsageBasedCharge, AglBaseCharge, EnergyScenario, IFlatCharge, GasMarketerFee, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks } from "../energy";
 import { NumberFormats } from "../helpers";
+import { AirConditioner } from "../energy/sinks/AirConditioner";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -19,6 +20,7 @@ const sinkNames = {
     [Sinks.gasFurnace]: GasFurnace.displayName,
     [Sinks.gasWaterHeater]: GasWaterHeater.displayName,
     [Sinks.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.displayName,
+    [Sinks.airConditioner]: AirConditioner.displayName,
     // [Sinks.hybridHeatPump]: HybridHeatPump.displayName,
 }
 
@@ -26,7 +28,8 @@ const initialBaselineSinks = [
     { id: Sinks.dualFuelAirHeatPump, selected: false },
     { id: Sinks.gasFurnace, selected: true },
     { id: Sinks.gasWaterHeater, selected: true },
-    { id: Sinks.otherHouseholdElectricalUsage, selected: true } // todo this should be forcefully added later (i.e. cannot be unchecked)
+    { id: Sinks.otherHouseholdElectricalUsage, selected: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
+    { id: Sinks.airConditioner, selected: true }
 ];
 
 const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
@@ -54,7 +57,7 @@ export interface UserUsageSummary {
 }
 
 const initialBaselineSummaryUsage: UserUsageSummary = {
-    highestElectrical: new MeasuredValue(1600, 'kWh'),
+    highestElectrical: new MeasuredValue(1660, 'kWh'),
     lowestElectrical: new MeasuredValue(600, 'kWh'),
     highestGas: new MeasuredValue(107, 'CCF'),
     lowestGas: new MeasuredValue(12, 'CCF'),
@@ -113,6 +116,7 @@ const baseline = createMemo(() => {
         new OtherHouseholdElectricalUsage(baselineSummaryUsage()),
         new GasFurnace(year(), baselineSummaryUsage()),
         new GasWaterHeater(year(), baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
+        new AirConditioner(year(), baselineSummaryUsage()),
         // new DualFuelHeatPump(year(),  [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
     ]
         .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));

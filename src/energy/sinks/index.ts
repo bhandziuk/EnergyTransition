@@ -9,6 +9,7 @@ export * from './OtherHouseholdElectricalUsage';
 
 export const Sinks = {
     dualFuelAirHeatPump: '882532f9-ea89-433d-9b38-6ab32790a986',
+    airConditioner: 'c6bb8859-82f6-4ecc-8cfb-6f281a108385',
     electricalAirHeatPump: '2a78b2c2-a644-43bf-9b3d-e000c6f3214e',
     hybridAirHeatPump: 'b63284eb-6742-43ed-a142-f752c9ccc073',
     electricalResistiveWaterHeater: '148b4bba-e80a-4b1e-a6ba-c3c7a3aa86e8',

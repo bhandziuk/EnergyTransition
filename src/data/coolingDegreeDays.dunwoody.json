@@ -1,0 +1,292 @@
+[
+    {
+        "year": 2021,
+        "month": 4,
+        "cdd": 37.5
+    },
+    {
+        "year": 2021,
+        "month": 5,
+        "cdd": 164
+    },
+    {
+        "year": 2021,
+        "month": 6,
+        "cdd": 368.5
+    },
+    {
+        "year": 2021,
+        "month": 7,
+        "cdd": 452.5
+    },
+    {
+        "year": 2021,
+        "month": 8,
+        "cdd": 470
+    },
+    {
+        "year": 2021,
+        "month": 9,
+        "cdd": 268.5
+    },
+    {
+        "year": 2021,
+        "month": 10,
+        "cdd": 131.5
+    },
+    {
+        "year": 2021,
+        "month": 11,
+        "cdd": 0
+    },
+    {
+        "year": 2021,
+        "month": 12,
+        "cdd": 9.5
+    },
+    {
+        "year": 2022,
+        "month": 1,
+        "cdd": 8
+    },
+    {
+        "year": 2022,
+        "month": 2,
+        "cdd": 8
+    },
+    {
+        "year": 2022,
+        "month": 3,
+        "cdd": 11.5
+    },
+    {
+        "year": 2022,
+        "month": 4,
+        "cdd": 46.5
+    },
+    {
+        "year": 2022,
+        "month": 5,
+        "cdd": 277.5
+    },
+    {
+        "year": 2022,
+        "month": 6,
+        "cdd": 476
+    },
+    {
+        "year": 2022,
+        "month": 7,
+        "cdd": 490.5
+    },
+    {
+        "year": 2022,
+        "month": 8,
+        "cdd": 438
+    },
+    {
+        "year": 2022,
+        "month": 9,
+        "cdd": 285.5
+    },
+    {
+        "year": 2022,
+        "month": 10,
+        "cdd": 28.5
+    },
+    {
+        "year": 2022,
+        "month": 11,
+        "cdd": 34.5
+    },
+    {
+        "year": 2022,
+        "month": 12,
+        "cdd": 4
+    },
+    {
+        "year": 2023,
+        "month": 1,
+        "cdd": 1.5
+    },
+    {
+        "year": 2023,
+        "month": 2,
+        "cdd": 24.5
+    },
+    {
+        "year": 2023,
+        "month": 3,
+        "cdd": 32.5
+    },
+    {
+        "year": 2023,
+        "month": 4,
+        "cdd": 50.5
+    },
+    {
+        "year": 2023,
+        "month": 5,
+        "cdd": 179.5
+    },
+    {
+        "year": 2023,
+        "month": 6,
+        "cdd": 341
+    },
+    {
+        "year": 2023,
+        "month": 7,
+        "cdd": 549
+    },
+    {
+        "year": 2023,
+        "month": 8,
+        "cdd": 535
+    },
+    {
+        "year": 2023,
+        "month": 9,
+        "cdd": 318
+    },
+    {
+        "year": 2023,
+        "month": 10,
+        "cdd": 90
+    },
+    {
+        "year": 2023,
+        "month": 11,
+        "cdd": 8.5
+    },
+    {
+        "year": 2023,
+        "month": 12,
+        "cdd": 0
+    },
+    {
+        "year": 2024,
+        "month": 1,
+        "cdd": 2
+    },
+    {
+        "year": 2024,
+        "month": 2,
+        "cdd": 0
+    },
+    {
+        "year": 2024,
+        "month": 3,
+        "cdd": 6.5
+    },
+    {
+        "year": 2024,
+        "month": 4,
+        "cdd": 88.5
+    },
+    {
+        "year": 2024,
+        "month": 5,
+        "cdd": 287
+    },
+    {
+        "year": 2024,
+        "month": 6,
+        "cdd": 482.5
+    },
+    {
+        "year": 2024,
+        "month": 7,
+        "cdd": 527
+    },
+    {
+        "year": 2024,
+        "month": 8,
+        "cdd": 526
+    },
+    {
+        "year": 2024,
+        "month": 9,
+        "cdd": 326.5
+    },
+    {
+        "year": 2024,
+        "month": 10,
+        "cdd": 142
+    },
+    {
+        "year": 2024,
+        "month": 11,
+        "cdd": 38.5
+    },
+    {
+        "year": 2024,
+        "month": 12,
+        "cdd": 0.5
+    },
+    {
+        "year": 2025,
+        "month": 1,
+        "cdd": 0
+    },
+    {
+        "year": 2025,
+        "month": 2,
+        "cdd": 11
+    },
+    {
+        "year": 2025,
+        "month": 3,
+        "cdd": 12
+    },
+    {
+        "year": 2025,
+        "month": 4,
+        "cdd": 135
+    },
+    {
+        "year": 2025,
+        "month": 5,
+        "cdd": 207.5
+    },
+    {
+        "year": 2025,
+        "month": 6,
+        "cdd": 434.5
+    },
+    {
+        "year": 2025,
+        "month": 7,
+        "cdd": 588
+    },
+    {
+        "year": 2025,
+        "month": 8,
+        "cdd": 398
+    },
+    {
+        "year": 2025,
+        "month": 9,
+        "cdd": 366
+    },
+    {
+        "year": 2025,
+        "month": 10,
+        "cdd": 112
+    },
+    {
+        "year": 2025,
+        "month": 11,
+        "cdd": 24.5
+    },
+    {
+        "year": 2025,
+        "month": 12,
+        "cdd": 4.5
+    },
+    {
+        "year": 2026,
+        "month": 1,
+        "cdd": 0
+    }
+]

@@ -100,7 +100,7 @@ export class EnergyScenario {
                     </div>
                 )
             }
-            <div class="charge-row">
+            <div class="charge-row total">
                 <div class="source"><h4>Tax cost</h4></div>
                 <div class="cost bold">{dollars(this.taxCost(taxableSubtotal_dollars))}</div>
             </div>
@@ -123,7 +123,7 @@ export class EnergyScenario {
                     </div>
                 )
             }
-            <div class="charge-row">
+            <div class="charge-row total">
                 <div class="source"><h4>Service subtotal cost</h4></div>
                 <div class="cost bold">{dollars(indirectCosts_dollars)}</div>
             </div>
@@ -143,7 +143,7 @@ export class EnergyScenario {
                         </div>
                     )
             }
-            <div class="charge-row">
+            <div class="charge-row total">
                 <div class="source"><h4>Total usage costs</h4></div>
                 <div class="cost bold">{dollars(this.directCosts())}</div>
             </div>
@@ -161,7 +161,7 @@ export class EnergyScenario {
                     </div>
                 )
             }
-            <div class="charge-row">
+            <div class="charge-row total">
                 <div class="source"><h4>Total flat costs</h4></div>
                 <div class="cost bold">{dollars(this.flatCosts())}</div>
             </div>
