@@ -1,11 +1,12 @@
+import { IMonthUsage } from "../MonthUsage";
 import { IDirectUsageBasedCharge, MeasuredValue, Purpose } from "../usageBasedCharges/UsageBasedCharge";
 
 
 export class OtherHouseholdElectricalUsage implements IDirectUsageBasedCharge {
     constructor(public electricalUsage: MeasuredValue) {
-        this.usage = [this.electricalUsage];
+
     }
-    public usage: MeasuredValue[];
+    usage: Array<IMonthUsage> = [];
 
     public usageFormatted = () => this.electricalUsage.formatted();
     public displayName = 'All other household electrical uses';

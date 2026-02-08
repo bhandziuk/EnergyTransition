@@ -1,12 +1,16 @@
 import { Sinks } from ".";
-import { IDirectUsageBasedCharge, MeasuredValue, Purpose, UnitOfMeasure } from "../usageBasedCharges";
+import { UserUsageSummary } from "../../components";
+import { IMonthUsage } from "../MonthUsage";
+import { IDirectUsageBasedCharge, Purpose, UnitOfMeasure } from "../usageBasedCharges";
 
 export class DualFuelHeatPump implements IDirectUsageBasedCharge {
 
-    constructor(private year: number, private cop: number, public usage: Array<MeasuredValue>) {
+    constructor(private year: number, private cop: number, private summaryUsage: UserUsageSummary) {
 
     }
-    usageFormatted = (uom?: UnitOfMeasure) => this.usage.filter(o => uom ? uom == o.uom : true).map(o => o.formatted()).join(', ');
+    usage: Array<IMonthUsage> = [];
+    usageFormatted: (uom?: UnitOfMeasure) => string = () => '';
+    // usageFormatted = (uom?: UnitOfMeasure) => this.usage.filter(o => uom ? uom == o.uom : true).map(o => o.formatted()).join(', ');
 
     id = Sinks.dualFuelHeatPump;
     public static displayName = 'Dual fuel heat pump (primary electrical, supplementary gas)';

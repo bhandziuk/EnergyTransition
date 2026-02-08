@@ -44,17 +44,24 @@ const baselineSinksComponent = () => <>
     </ul>
 </>
 
-const initialBaselineSummaryUsage = {
-    highestElectrical: new MeasuredValue(0, 'kWh'),
-    lowestElectrical: new MeasuredValue(0, 'kWh'),
-    highestGas: new MeasuredValue(0, 'CCF'),
-    lowestGas: new MeasuredValue(0, 'CCF'),
+export interface UserUsageSummary {
+    highestElectrical: MeasuredValue;
+    lowestElectrical: MeasuredValue;
+    highestGas: MeasuredValue;
+    lowestGas: MeasuredValue;
 }
 
-const [baselineSummaryUsage, setBaselineSummaryUsage] = createSignal();
+const initialBaselineSummaryUsage: UserUsageSummary = {
+    highestElectrical: new MeasuredValue(0, 'kWh'),
+    lowestElectrical: new MeasuredValue(0, 'kWh'),
+    highestGas: new MeasuredValue(107, 'CCF'),
+    lowestGas: new MeasuredValue(12, 'CCF'),
+}
 
+const [baselineSummaryUsage, setBaselineSummaryUsage] = createSignal(initialBaselineSummaryUsage);
+
+// ask user for highest/lowest CCF/kWh
 const baselineUsageComponent = () => <>
-
 </>
 
 const georgiaPowerRateSchedule = [
@@ -92,11 +99,6 @@ class CombinedEnergyScenario {
     </div>
 }
 
-const baselineParameters = createEffect(() => {
-
-
-});
-
 const baseline = createMemo(() => {
     const gasFlatCharges: Array<IFlatCharge> = [
         new AglBaseCharge(dddc(), year(), false, true),
@@ -104,12 +106,13 @@ const baseline = createMemo(() => {
     ];
 
     const directUses: Array<IDirectUsageBasedCharge> = [
-        new ElectricalHeatPump(year(), 0.9, electricalSpaceHeating()),
-        new OtherHouseholdElectricalUsage(otherHouseholdElectricalUsage()),
-        new GasFurnace(0.9, new MeasuredValue(276, 'therm')),
-        new GasWaterHeater(1, new MeasuredValue(144, 'therm')),
-        new DualFuelHeatPump(year(), 0.9, [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
-    ];
+        // new ElectricalHeatPump(year(), 0.9, electricalSpaceHeating()),
+        // new OtherHouseholdElectricalUsage(otherHouseholdElectricalUsage()),
+        new GasFurnace(year(), 0.9, baselineSummaryUsage()),
+        new GasWaterHeater(year(), 0.9, baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
+        // new DualFuelHeatPump(year(), 0.9, [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
+    ]
+        .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
 
     const gasIndirectCharges: Array<IIndirectUsageBasedCharge> = [
     ];

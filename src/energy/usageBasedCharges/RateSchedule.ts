@@ -1,4 +1,5 @@
 import { IMonthUsage } from "../MonthUsage";
+import { MeasuredValue, UnitOfMeasure } from "./UsageBasedCharge";
 
 export class RateSchedule {
     constructor(public name: string, public applicableMonths: Array<number>, public rates: Array<IRateBin>) {
@@ -25,16 +26,16 @@ export interface IRateBin {
     name: string,
     upperLimit: number,
     rate: number,
-    limitUom: string
+    limitUom: UnitOfMeasure
 }
 
-export function calculateDirectCosts(rateSchedule: Array<RateSchedule>, usage: number | Array<IMonthUsage>) {
+export function calculateDirectCosts(rateSchedule: Array<RateSchedule>, usage: MeasuredValue | Array<IMonthUsage>) {
 
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    const usageByMonth = usage instanceof Array ? usage : months.map(month => ({ month: month, usage: usage / 12 } as IMonthUsage));
+    const usageByMonth = usage instanceof Array ? usage : months.map(month => ({ month: month, usage: new MeasuredValue(usage.value / 12, usage.uom) } as IMonthUsage));
     return rateSchedule
         .map(rate => {
-            const usageInWindow = usageByMonth.filter(o => rate.applicableMonths.includes(o.month)).reduce((acc, val) => acc + val.usage, 0);
+            const usageInWindow = usageByMonth.filter(o => rate.applicableMonths.includes(o.month)).reduce((acc, val) => acc + val.usage.value, 0);
             return rate.cost(usageInWindow);
         })
         .reduce((acc, val) => acc + val, 0);

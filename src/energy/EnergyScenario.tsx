@@ -26,23 +26,25 @@ export class EnergyScenario {
     public render: Component = (props) => {
         const totalCharges = this.totalCost();
 
-        return <div class="scenario-source-section">
-            <h3>{this.scenarioFuelType}</h3>
-            <div class="scenario-source-charges-section">
-                {this.renderFlatCharges(props)}
-                {this.renderDirectUsageCharges(props)}
-                {this.renderIndirectUsageCharges(props)}
-                {this.renderTaxCharges(props)}
-                <div class="total-row">
-                    <div class="source"><h3>{this.scenarioFuelType} total costs</h3></div>
-                    <div class="cost bold">{dollars(totalCharges)}</div>
+        return <Show when={this.directUses.filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom)).length}>
+            <div class="scenario-source-section">
+                <h3>{this.scenarioFuelType}</h3>
+                <div class="scenario-source-charges-section">
+                    {this.renderFlatCharges(props)}
+                    {this.renderDirectUsageCharges(props)}
+                    {this.renderIndirectUsageCharges(props)}
+                    {this.renderTaxCharges(props)}
+                    <div class="total-row">
+                        <div class="source"><h3>{this.scenarioFuelType} total costs</h3></div>
+                        <div class="cost bold">{dollars(totalCharges)}</div>
+                    </div>
                 </div>
-            </div>
-        </ div>
+            </ div>
+        </Show>
     }
 
     public cost() {
-        return this.totalCost();
+        return this.directUses.filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom)).length ? this.totalCost() : 0;
     };
 
     private totalCost() {
@@ -60,8 +62,7 @@ export class EnergyScenario {
 
     private directUsage() {
         return this.directUses.flatMap(o => o.usage)
-            .filter(o => o.uom == this.scenarioUom)
-            .reduce((acc, val) => acc + val.value, 0);
+            .filter(o => o.usage.uom == this.scenarioUom);
     }
 
     private indirectCosts() {
@@ -130,11 +131,11 @@ export class EnergyScenario {
     }
 
     private renderDirectUsageCharges: Component = (props: any) => {
-        return <Show when={this.directUses.filter(o => o.usage.some(use => use.uom == this.scenarioUom)).length}>
+        return <Show when={this.directUses.filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom)).length}>
             <h4>Volumetric usage base charges</h4>
             {
                 this.directUses
-                    .filter(o => o.usage.some(use => use.uom == this.scenarioUom))
+                    .filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom))
                     .map(o =>
                         <div class="charge-row">
                             <div class="source">{o.displayName}</div>

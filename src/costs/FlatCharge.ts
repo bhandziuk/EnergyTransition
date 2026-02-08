@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import rates from "../rates.json";
+import rates from "../data/rates.json";
 type RateSet = typeof rates[0];
 
 export interface IFlatCharge {
