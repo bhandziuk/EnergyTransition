@@ -8,7 +8,7 @@ import { IDirectUsageBasedCharge, MeasuredValue, Purpose, UnitOfMeasure } from "
 
 export class GasWaterHeater implements IDirectUsageBasedCharge {
 
-    constructor(year: number, cop: number, summaryUsage: UserUsageSummary, appliancesInUse: Array<string>) {
+    constructor(year: number, summaryUsage: UserUsageSummary, appliancesInUse: Array<string>) {
         const thisYearHdd = hdd.filter(o => o.year == year).toSorted((a, b) => a.hdd - b.hdd);
 
         const lowestHdd = thisYearHdd[thisYearHdd.length - 1];

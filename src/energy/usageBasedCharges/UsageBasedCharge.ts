@@ -32,6 +32,7 @@ export class MeasuredValue {
         return differentUom.concat([new MeasuredValue(sameUom, this.uom)]);
     }
 
+    /** Ensures CCF is in therms */
     public toTherms(year: number, month: number) {
         if (this.uom == "kWh") {
             throw new Error("Cannot convert kWh to therm");
@@ -44,6 +45,17 @@ export class MeasuredValue {
         if (this.uom == 'CCF') {
             const thermFactor = thermFactors.find(o => o.month == month && o.year == year);
             return new MeasuredValue(this.value * (thermFactor?.thermFactor ?? 1), 'therm');
+        }
+    }
+
+    public toKwh(year: number, month: number) {
+        const thermPerKwh = 29.307111111;
+        if (this.uom == "kWh") {
+            return this;
+        }
+        else if (this.uom == 'therm' || this.uom == 'CCF') {
+            const therms = this.toTherms(year, month);
+            return new MeasuredValue(therms!.value / thermPerKwh, 'kWh');
         }
     }
 }

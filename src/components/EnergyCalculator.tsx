@@ -1,6 +1,6 @@
 import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
 import { dddc, DddcCalculator } from "./DddcCalculator";
-import { IDirectUsageBasedCharge, AglBaseCharge, EnergyScenario, IFlatCharge, GasMarketerFee, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelHeatPump, ElectricalResistiveWaterHeater, Sinks } from "../energy";
+import { IDirectUsageBasedCharge, AglBaseCharge, EnergyScenario, IFlatCharge, GasMarketerFee, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks } from "../energy";
 import { NumberFormats } from "../helpers";
 
 const dollars = NumberFormats.dollarsFormat().format;
@@ -13,8 +13,8 @@ const otherHouseholdElectricalUsage = createMemo(() => new MeasuredValue(10896, 
 const totalElectricalUsage = createMemo(() => electricalSpaceHeating().combine([otherHouseholdElectricalUsage()]));
 
 const sinkNames = {
-    [Sinks.dualFuelHeatPump]: DualFuelHeatPump.displayName,
-    [Sinks.electricalHeatPump]: ElectricalHeatPump.displayName,
+    [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.displayName,
+    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
     [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
     [Sinks.gasFurnace]: GasFurnace.displayName,
     [Sinks.gasWaterHeater]: GasWaterHeater.displayName,
@@ -23,7 +23,7 @@ const sinkNames = {
 }
 
 const initialBaselineSinks = [
-    { id: Sinks.dualFuelHeatPump, selected: false },
+    { id: Sinks.dualFuelAirHeatPump, selected: false },
     { id: Sinks.gasFurnace, selected: true },
     { id: Sinks.gasWaterHeater, selected: true },
     { id: Sinks.otherHouseholdElectricalUsage, selected: true } // todo this should be forcefully added later (i.e. cannot be unchecked)
@@ -66,6 +66,7 @@ const [baselineSummaryUsage, setBaselineSummaryUsage] = createSignal(initialBase
 const baselineUsageComponent = () => <>
 </>
 
+// TODO put in a .json file linked to the year
 const georgiaPowerRateSchedule = [
     new RateSchedule("Summer rate schedule", [6, 7, 8, 9], [
         { name: '1st tier, up to 650 kWh', rate: 0.086121, limitUom: 'kWh', upperLimit: 650 },
@@ -108,11 +109,11 @@ const baseline = createMemo(() => {
     ];
 
     const directUses: Array<IDirectUsageBasedCharge> = [
-        // new ElectricalHeatPump(year(), 0.9, electricalSpaceHeating()),
+        // new ElectricalHeatPump(year(),  electricalSpaceHeating()),
         new OtherHouseholdElectricalUsage(baselineSummaryUsage()),
-        new GasFurnace(year(), 0.9, baselineSummaryUsage()),
-        new GasWaterHeater(year(), 0.9, baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
-        // new DualFuelHeatPump(year(), 0.9, [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
+        new GasFurnace(year(), baselineSummaryUsage()),
+        new GasWaterHeater(year(), baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
+        // new DualFuelHeatPump(year(),  [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
     ]
         .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
 

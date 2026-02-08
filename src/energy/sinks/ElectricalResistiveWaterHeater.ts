@@ -4,8 +4,10 @@ import { IMonthUsage } from "../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose, UnitOfMeasure } from "../usageBasedCharges";
 
 export class ElectricalResistiveWaterHeater implements IDirectUsageBasedCharge {
-    constructor(private year: number, private cop: number, private summaryUsage: UserUsageSummary) {
+    constructor(private year: number, private inputUsage: UserUsageSummary | Array<IMonthUsage>) {
     }
+
+    public static cop: number = 1;
     usage: Array<IMonthUsage> = [];
     usageFormatted: (uom?: UnitOfMeasure) => string = () => '';
     public static displayName = 'Electric resistive water heater';

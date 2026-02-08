@@ -3,5 +3,5 @@ import { IDirectUsageBasedCharge } from "../usageBasedCharges";
 
 export interface IProportionUse {
     canConvertTo: Array<string>,
-    convert: (relatedUsage: Array<IMonthUsage>) => IDirectUsageBasedCharge
+    convert: (toSink: string, relatedUsage: Array<IMonthUsage>) => IDirectUsageBasedCharge
 }

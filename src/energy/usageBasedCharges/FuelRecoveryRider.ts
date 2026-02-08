@@ -17,8 +17,8 @@ export class FuelRecoveryRider implements IIndirectUsageBasedCharge {
         ]
     };
 
-    public cost(subtotal_dollars: number, usage_kwh: number | Array<IMonthUsage>) {
+    public cost(subtotal_dollars: number, usage: Array<IMonthUsage>) {
         // https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/
-        return calculateDirectCosts(this.rateScheduleByYear[this.year], usage_kwh);
+        return calculateDirectCosts(this.rateScheduleByYear[this.year], usage);
     }
 }
