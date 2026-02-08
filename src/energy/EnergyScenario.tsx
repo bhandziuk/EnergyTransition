@@ -56,8 +56,8 @@ export class EnergyScenario {
     }
 
     private directCosts() {
-        const totalUsage = this.directUsage();
-        return calculateDirectCosts(this.rateSchedule, totalUsage);
+        const directUsage_inScenarioUom = this.directUsage();
+        return calculateDirectCosts(this.rateSchedule, directUsage_inScenarioUom);
     }
 
     private directUsage() {

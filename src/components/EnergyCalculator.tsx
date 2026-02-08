@@ -18,6 +18,7 @@ const sinkNames = {
     [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
     [Sinks.gasFurnace]: GasFurnace.displayName,
     [Sinks.gasWaterHeater]: GasWaterHeater.displayName,
+    [Sinks.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.displayName,
     // [Sinks.hybridHeatPump]: HybridHeatPump.displayName,
 }
 
@@ -25,6 +26,7 @@ const initialBaselineSinks = [
     { id: Sinks.dualFuelHeatPump, selected: false },
     { id: Sinks.gasFurnace, selected: true },
     { id: Sinks.gasWaterHeater, selected: true },
+    { id: Sinks.otherHouseholdElectricalUsage, selected: true } // todo this should be forcefully added later (i.e. cannot be unchecked)
 ];
 
 const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
@@ -52,8 +54,8 @@ export interface UserUsageSummary {
 }
 
 const initialBaselineSummaryUsage: UserUsageSummary = {
-    highestElectrical: new MeasuredValue(0, 'kWh'),
-    lowestElectrical: new MeasuredValue(0, 'kWh'),
+    highestElectrical: new MeasuredValue(1600, 'kWh'),
+    lowestElectrical: new MeasuredValue(600, 'kWh'),
     highestGas: new MeasuredValue(107, 'CCF'),
     lowestGas: new MeasuredValue(12, 'CCF'),
 }
@@ -107,7 +109,7 @@ const baseline = createMemo(() => {
 
     const directUses: Array<IDirectUsageBasedCharge> = [
         // new ElectricalHeatPump(year(), 0.9, electricalSpaceHeating()),
-        // new OtherHouseholdElectricalUsage(otherHouseholdElectricalUsage()),
+        new OtherHouseholdElectricalUsage(baselineSummaryUsage()),
         new GasFurnace(year(), 0.9, baselineSummaryUsage()),
         new GasWaterHeater(year(), 0.9, baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
         // new DualFuelHeatPump(year(), 0.9, [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])

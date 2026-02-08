@@ -1,3 +1,4 @@
+
 export * from './DualFuelHeatPump';
 export * from './ElectricalHeatPump';
 export * from './ElectricalResistiveWaterHeater';
@@ -16,6 +17,7 @@ export const Sinks = {
     gasDryer: '0b758537-dc18-4c71-9af7-53bc38586b49',
     gasCooktop: 'b9211302-7c02-4823-84ec-719700d4f4a7',
     gasGrill: '89b0600a-332c-4d26-93bf-8ec1a3077ac3',
+    otherHouseholdElectricalUsage: 'bcd7355f-c246-4720-981b-d361058ec9ce',
 }
 
 export const possibleGasAppliancesInUseInLowestMonth = [

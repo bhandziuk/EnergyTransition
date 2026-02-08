@@ -32,11 +32,14 @@ export interface IRateBin {
 export function calculateDirectCosts(rateSchedule: Array<RateSchedule>, usage: MeasuredValue | Array<IMonthUsage>) {
 
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    const usageByMonth = usage instanceof Array ? usage : months.map(month => ({ month: month, usage: new MeasuredValue(usage.value / 12, usage.uom) } as IMonthUsage));
-    return rateSchedule
-        .map(rate => {
-            const usageInWindow = usageByMonth.filter(o => rate.applicableMonths.includes(o.month)).reduce((acc, val) => acc + val.usage.value, 0);
-            return rate.cost(usageInWindow);
-        })
-        .reduce((acc, val) => acc + val, 0);
+    const usageByMonth = usage instanceof Array ?
+        usage : // use the usage as provided because it's already broken out by month
+        months.map(month => ({ month: month, usage: new MeasuredValue(usage.value / 12, usage.uom) } as IMonthUsage)); // Usage is expressed on an annualized basis and wll be uniformly proportioned by month.
+
+    const monthlyCosts = usageByMonth.map(uim => {
+        const monthRate = rateSchedule.find(rs => rs.applicableMonths.includes(uim.month));
+        return monthRate?.cost(uim.usage.value) ?? 0;
+    });
+
+    return monthlyCosts.reduce((acc, val) => acc + val, 0);
 }
