@@ -4,6 +4,7 @@ import { NumberFormats } from "../helpers";
 import { UserUsageSummary } from "./SummaryUsage";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
 import { summaryUsage } from "./SummaryUsage";
+import { GeorgiaPowerBaseFee } from "../energy/usageBasedCharges/GeorgiaPowerBaseFee";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -105,7 +106,7 @@ const baseline = createMemo(() => {
     const gasBaseScenario = new EnergyScenario("Gas", 'therm', directUses, gasIndirectCharges, gasFlatCharges, gasRateSchedule);
 
     const electricalFlatCharges: Array<IFlatCharge> = [
-
+        new GeorgiaPowerBaseFee(year())
     ];
 
     const electricalIndirectUses: Array<IIndirectUsageBasedCharge> = [

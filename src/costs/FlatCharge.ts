@@ -7,7 +7,7 @@ type RateSet = typeof rates[0];
 
 export interface IFlatCharge {
     source: () => string
-    cost: () => number;
+    annualCost: () => number;
 }
 
 
@@ -19,7 +19,7 @@ export class GasMarketerFee implements IFlatCharge {
 
     public source = () => "Marketer Fee";
 
-    public cost() {
+    public annualCost() {
         return 6.95 * 12;
     }
 }
@@ -40,7 +40,7 @@ export class AglBaseCharge implements IFlatCharge {
 
     public source = () => `AGL Base Charge (DDDC = ${this.dddc.toFixed(3)})`;
 
-    public cost() {
+    public annualCost() {
         return rates
             .filter(o => this.yearMonths.includes(o.month))
             .map(o => this.monthlyCharge(o))

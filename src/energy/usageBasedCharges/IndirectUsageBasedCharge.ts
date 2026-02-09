@@ -3,5 +3,5 @@ import { IMonthUsage } from "../MonthUsage";
 export interface IIndirectUsageBasedCharge {
     usageFormatted: () => string;
     source: string
-    cost: (subtotal_dollars: number, usage: Array<IMonthUsage>) => number;
+    annualCost: (subtotal_dollars: number, usage: Array<IMonthUsage>) => number;
 }

@@ -20,7 +20,7 @@ export class AirConditioner implements IDirectUsageBasedCharge {
 
             const coolingOnly = Math.max(0, (highestUsedKwh?.value ?? 0) - (lowestUsedKwh?.value ?? 0));
 
-            this.usage = thisYearCdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(coolingOnly * o.cdd / highestCdd.cdd, 'kWh') });
+            this.usage = thisYearCdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(coolingOnly * 1.1 * o.cdd / highestCdd.cdd, 'kWh') });
         }
     }
 

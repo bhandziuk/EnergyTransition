@@ -69,11 +69,11 @@ export class EnergyScenario {
     private indirectCosts() {
         const directCosts_dollars = this.directCosts();
         const directUsage_inScenarioUom = this.directUsage();
-        return this.indirectUses.map(o => o.cost(directCosts_dollars, directUsage_inScenarioUom)).reduce((acc, val) => acc + val, 0);
+        return this.indirectUses.map(o => o.annualCost(directCosts_dollars, directUsage_inScenarioUom)).reduce((acc, val) => acc + val, 0);
     }
 
     private flatCosts() {
-        return this.flatCharges.map(o => o.cost()).reduce((acc, val) => acc + val, 0);
+        return this.flatCharges.map(o => o.annualCost()).reduce((acc, val) => acc + val, 0);
     }
 
     private taxableSubtotalCost() {
@@ -120,7 +120,7 @@ export class EnergyScenario {
                     <div class="charge-row">
                         <div class="source">{o.source}</div>
                         <div class="usage">{o.usageFormatted()}</div>
-                        <div class="cost">{dollars(o.cost(directCosts_dollars, directUsage_inScenarioUom))}</div>
+                        <div class="cost">{dollars(o.annualCost(directCosts_dollars, directUsage_inScenarioUom))}</div>
                     </div>
                 )
             }
@@ -163,7 +163,7 @@ export class EnergyScenario {
                 this.flatCharges.map(o =>
                     <div class="charge-row">
                         <div class="source">{o.source()}</div>
-                        <div class="cost">{dollars(o.cost())}</div>
+                        <div class="cost">{dollars(o.annualCost())}</div>
                     </div>
                 )
             }

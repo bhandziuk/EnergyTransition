@@ -4,8 +4,8 @@ import { MeasuredValue } from "../energy";
 export function summaryUsage() {
 
     const initialBaselineSummaryUsage = createMemo(() => ({
-        highestElectrical: 1660,
-        lowestElectrical: 600,
+        highestElectrical: 1773,
+        lowestElectrical: 612,
         highestGas: 107,
         lowestGas: 12,
     }));

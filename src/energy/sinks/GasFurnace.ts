@@ -20,7 +20,9 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
         const heatingOnly = Math.max(0, (highestUsedTherms?.value ?? 0) - (lowestUsedTherms?.value ?? 0));
 
-        this.usage = thisYearHdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(heatingOnly * o.hdd / highestHdd.hdd, 'therm') });
+        const thermUsage = thisYearHdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(heatingOnly * o.hdd / highestHdd.hdd, 'therm') });
+        //const electricalUsage = thermUsage.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(o.usage.value / 2, 'kWh') });
+        this.usage = thermUsage;//.concat(electricalUsage);
     }
     canConvertTo: string[] = [Sinks.dualFuelAirHeatPump, Sinks.electricalAirHeatPump, Sinks.hybridAirHeatPump];
     convert: (toSink: string, relatedUsage: Array<IMonthUsage>) => IDirectUsageBasedCharge = (toSink, relatedUsage) => {
