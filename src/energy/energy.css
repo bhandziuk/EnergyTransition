@@ -1,5 +1,5 @@
 .charge-row {
-    padding-left: 2em;
+    padding-left: 1.5em;
 }
 
 .charge-row:not(.total) {
@@ -20,7 +20,7 @@
         grid-area: usage;
         text-align: right;
         padding-right: 5px;
-
+        white-space: nowrap;
     }
 
     .usage-uom {
@@ -36,11 +36,11 @@
 }
 
 .scenario-source-section {
-    padding-left: 2em;
+    padding-left: 1.5em;
 }
 
 .scenario-source-charges-section {
-    padding-left: 2em;
+    padding-left: 1.5em;
 
     h1,
     h2,
@@ -67,9 +67,20 @@
 .summary-usage-input {
     display: grid;
     max-width: 50em;
-    grid-template-areas: ". electrical-label gas-label"
+    background-color: #dbdbdb;
+    grid-gap: 2px;
+    grid-template-areas: "top-left electrical-label gas-label"
         "lowest-label lowest-electrical lowest-gas"
         "highest-label highest-electrical highest-gas";
+
+    >* {
+        background-color: white;
+        border: 0;
+    }
+
+    .top-left {
+        grid-area: top-left;
+    }
 
     .lowest-label {
         grid-area: lowest-label;

@@ -31,6 +31,7 @@ export function summaryUsage() {
 
     // ask user for highest/lowest CCF/kWh
     const SummaryUsage: Component = (props) => <div class="summary-usage-input">
+        <span class="top-left"></span>
         <span class="highest-label">Highest Month of Usage</span>
         <span class="lowest-label">Lowest Month of Usage</span>
         <span class="electrical-label">Electrical (kWh)</span>
