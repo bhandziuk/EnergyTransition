@@ -1,9 +1,12 @@
 import { DateTime } from "luxon";
+import { calculateDddc, UserUsageSummary } from "../components";
+import hdd from '../data/heatingDegreeDays.dunwoody.json';
 import rates from "../data/rates.json";
+
 type RateSet = typeof rates[0];
 
 export interface IFlatCharge {
-    source: string
+    source: () => string
     cost: () => number;
 }
 
@@ -14,7 +17,7 @@ export class GasMarketerFee implements IFlatCharge {
 
     }
 
-    public source = "Marketer Fee";
+    public source = () => "Marketer Fee";
 
     public cost() {
         return 6.95 * 12;
@@ -25,11 +28,17 @@ export class AglBaseCharge implements IFlatCharge {
 
     private yearMonths: Array<string> = [];
 
-    constructor(private dddc: number, private year: number, private seniorDiscount: boolean, private peakingGroup: boolean) {
+    constructor(private year: number, private seniorDiscount: boolean, private peakingGroup: boolean, summaryUsage: UserUsageSummary) {
         this.yearMonths = Array.from({ length: 12 }, (_, i) => i + 1).map(o => DateTime.utc(this.year, o, 1).toFormat("MMM-yy"));
+        const thisYearHdd = hdd.filter(o => o.year == year).toSorted((a, b) => b.hdd - a.hdd);
+        const highestHdd = thisYearHdd[0];
+
+        this.dddc = calculateDddc(summaryUsage.lowestGas.value, summaryUsage.lowestGas.value, summaryUsage.highestGas.value, highestHdd.hdd);
     }
 
-    public source = "AGL Base Charge";
+    private dddc: number;
+
+    public source = () => `AGL Base Charge (DDDC = ${this.dddc.toFixed(3)})`;
 
     public cost() {
         return rates
@@ -71,7 +80,6 @@ export class AglBaseCharge implements IFlatCharge {
             + systemReinforcementRider
             + dotRider
             + econ1Rider;
-        console.log(rates.month, total);
         return total;
     }
 

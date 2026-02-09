@@ -1,5 +1,5 @@
+import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
-import { MeasuredValue, UnitOfMeasure } from "./UsageBasedCharge";
 
 export class RateSchedule {
     constructor(public name: string, public applicableMonths: Array<number>, public rates: Array<IRateBin>) {

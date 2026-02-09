@@ -2,8 +2,9 @@ import { possibleGasAppliancesInUseInLowestMonth, Sinks } from ".";
 import { UserUsageSummary } from "../../components";
 import hdd from '../../data/heatingDegreeDays.dunwoody.json';
 import { groupBy } from "../../helpers";
+import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
-import { IDirectUsageBasedCharge, MeasuredValue, Purpose, UnitOfMeasure } from "../usageBasedCharges/UsageBasedCharge";
+import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
 
 
 export class GasWaterHeater implements IDirectUsageBasedCharge {

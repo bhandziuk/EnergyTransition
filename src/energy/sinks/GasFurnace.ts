@@ -2,8 +2,9 @@ import { DualFuelAirHeatPump, Sinks } from ".";
 import { UserUsageSummary } from "../../components";
 import hdd from '../../data/heatingDegreeDays.dunwoody.json';
 import { groupBy } from "../../helpers";
+import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
-import { IDirectUsageBasedCharge, MeasuredValue, Purpose, UnitOfMeasure } from "../usageBasedCharges/UsageBasedCharge";
+import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
 import { IProportionUse } from "./IProportionUse";
 
 
@@ -17,7 +18,7 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
         const highestUsedTherms = summaryUsage.highestGas.toTherms(highestHdd.year, highestHdd.month);
         const lowestUsedTherms = summaryUsage.lowestGas.toTherms(lowestHdd.year, lowestHdd.month);
 
-        const heatingOnly = (highestUsedTherms?.value ?? 0) - (lowestUsedTherms?.value ?? 0);
+        const heatingOnly = Math.max(0, (highestUsedTherms?.value ?? 0) - (lowestUsedTherms?.value ?? 0));
 
         this.usage = thisYearHdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(heatingOnly * o.hdd / highestHdd.hdd, 'therm') });
     }

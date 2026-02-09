@@ -3,8 +3,9 @@ import { ITaxCharge, SalesTax } from "../costs";
 import { IFlatCharge } from "../costs/FlatCharge";
 import { NumberFormats } from "../helpers/NumbersFormats";
 import './energy.css';
-import { IDirectUsageBasedCharge, UnitOfMeasure, calculateDirectCosts, RateSchedule } from "./usageBasedCharges";
+import { IDirectUsageBasedCharge, calculateDirectCosts, RateSchedule } from "./usageBasedCharges";
 import { IIndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
+import { UnitOfMeasure } from "./MeasuredValue";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -156,7 +157,7 @@ export class EnergyScenario {
             {
                 this.flatCharges.map(o =>
                     <div class="charge-row">
-                        <div class="source">{o.source}</div>
+                        <div class="source">{o.source()}</div>
                         <div class="cost">{dollars(o.cost())}</div>
                     </div>
                 )

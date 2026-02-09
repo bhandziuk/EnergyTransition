@@ -1,17 +1,15 @@
 import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
-import { dddc, DddcCalculator } from "./DddcCalculator";
-import { IDirectUsageBasedCharge, AglBaseCharge, EnergyScenario, IFlatCharge, GasMarketerFee, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks } from "../energy";
+import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner } from "../energy";
 import { NumberFormats } from "../helpers";
-import { AirConditioner } from "../energy/sinks/AirConditioner";
+import { UserUsageSummary } from "./SummaryUsage";
+import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
+import { summaryUsage } from "./SummaryUsage";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
 const year = createMemo(() => 2025);
 
-const electricalSpaceHeating = createMemo(() => new MeasuredValue(250, "kWh"));
-const otherHouseholdElectricalUsage = createMemo(() => new MeasuredValue(10896, "kWh"));
-
-const totalElectricalUsage = createMemo(() => electricalSpaceHeating().combine([otherHouseholdElectricalUsage()]));
+const summaryUsagePart = summaryUsage();
 
 const sinkNames = {
     [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.displayName,
@@ -47,26 +45,6 @@ const baselineSinksComponent = () => <>
                 </li>
             )}
     </ul>
-</>
-
-export interface UserUsageSummary {
-    highestElectrical: MeasuredValue;
-    lowestElectrical: MeasuredValue;
-    highestGas: MeasuredValue;
-    lowestGas: MeasuredValue;
-}
-
-const initialBaselineSummaryUsage: UserUsageSummary = {
-    highestElectrical: new MeasuredValue(1660, 'kWh'),
-    lowestElectrical: new MeasuredValue(600, 'kWh'),
-    highestGas: new MeasuredValue(107, 'CCF'),
-    lowestGas: new MeasuredValue(12, 'CCF'),
-}
-
-const [baselineSummaryUsage, setBaselineSummaryUsage] = createSignal(initialBaselineSummaryUsage);
-
-// ask user for highest/lowest CCF/kWh
-const baselineUsageComponent = () => <>
 </>
 
 // TODO put in a .json file linked to the year
@@ -107,16 +85,16 @@ class CombinedEnergyScenario {
 
 const baseline = createMemo(() => {
     const gasFlatCharges: Array<IFlatCharge> = [
-        new AglBaseCharge(dddc(), year(), false, true),
+        new AglBaseCharge(year(), false, true, summaryUsagePart.baselineSummaryUsage()),
         new GasMarketerFee(year())
     ];
 
     const directUses: Array<IDirectUsageBasedCharge> = [
         // new ElectricalHeatPump(year(),  electricalSpaceHeating()),
-        new OtherHouseholdElectricalUsage(baselineSummaryUsage()),
-        new GasFurnace(year(), baselineSummaryUsage()),
-        new GasWaterHeater(year(), baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
-        new AirConditioner(year(), baselineSummaryUsage()),
+        new OtherHouseholdElectricalUsage(summaryUsagePart.baselineSummaryUsage()),
+        new GasFurnace(year(), summaryUsagePart.baselineSummaryUsage()),
+        new GasWaterHeater(year(), summaryUsagePart.baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
+        new AirConditioner(year(), summaryUsagePart.baselineSummaryUsage()),
         // new DualFuelHeatPump(year(),  [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
     ]
         .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
@@ -147,12 +125,15 @@ const EnergyCalculator: Component = (props) => {
     return (
         <>
             <h1>Home Energy Use Calculator</h1>
+            <p>
+                This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
+            </p>
             <h2>What are your current gas appliances?</h2>
             {baselineSinksComponent()}
-            <Show when={baselineSinks().some(o => o.selected)}>
-                <h2>DDDC Calculation</h2>
-                <DddcCalculator></DddcCalculator>
-            </Show>
+
+            <h2>What is your current utility usage?</h2>
+            <summaryUsagePart.SummaryUsage />
+
             {baseline().render(props)}
         </>
     );

@@ -1,7 +1,8 @@
 import { Sinks } from ".";
 import { UserUsageSummary } from "../../components";
+import { MeasuredValue } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
-import { IDirectUsageBasedCharge, MeasuredValue, Purpose } from "../usageBasedCharges/UsageBasedCharge";
+import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
 
 
 export class OtherHouseholdElectricalUsage implements IDirectUsageBasedCharge {

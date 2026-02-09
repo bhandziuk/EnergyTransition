@@ -7,15 +7,12 @@ const [januaryConsumption, setJanuaryConsumption] = createSignal(32);
 
 const numberFormat = NumberFormats.integersFormat().format;
 
-const dddc = createMemo(() => {
-
-    const baseSummerConsumption_ccf = julyConsumption() + juneConsumption();
+export function calculateDddc(june_ccf: number, july_ccf: number, january_ccf: number, coldestMonthHeatingDegreeDays_degreeDay: number) {
+    const baseSummerConsumption_ccf = june_ccf + july_ccf;
     const dailySummerBaseLoad_ccfPerDay = baseSummerConsumption_ccf / 62;   // why 62 and not 61?
     const numberOfDaysInColdestMonth = 31;
     const coldestMonthBaseNonHeatingLoad_ccf = dailySummerBaseLoad_ccfPerDay * numberOfDaysInColdestMonth;
-    const coldestMonthHeatSensitiveLoad_ccf = januaryConsumption() - coldestMonthBaseNonHeatingLoad_ccf;
-
-    const coldestMonthHeatingDegreeDays_degreeDay = 475; // TODO get from data somehow
+    const coldestMonthHeatSensitiveLoad_ccf = january_ccf - coldestMonthBaseNonHeatingLoad_ccf;
 
     const heatSensitiveFactor_ccf_per_degreeDay = coldestMonthHeatSensitiveLoad_ccf / coldestMonthHeatingDegreeDays_degreeDay;
 
@@ -26,6 +23,10 @@ const dddc = createMemo(() => {
     const truedUpDesignDayFactor_mcf = customerDesignDayFactor_mcf * 1.1763; // what is this number?
     const finalActualDesignDayFactor = truedUpDesignDayFactor_mcf * 1.025; // what is this number?
     return finalActualDesignDayFactor;
+}
+
+const dddc = createMemo(() => {
+    return calculateDddc(juneConsumption(), julyConsumption(), januaryConsumption(), 475);
 });
 
 const DddcCalculator: Component = (props) => {
@@ -67,4 +68,4 @@ const InputField: Component<{ label: string; model: Model<number>, id: string }>
 
 
 
-export { DddcCalculator, dddc };
+export { DddcCalculator };

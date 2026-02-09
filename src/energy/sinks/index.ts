@@ -1,11 +1,11 @@
 
+export * from './AirConditioner';
 export * from './DualFuelAirHeatPump';
 export * from './ElectricalAirHeatPump';
 export * from './ElectricalResistiveWaterHeater';
 export * from './GasFurnace';
 export * from './GasWaterHeater';
 export * from './OtherHouseholdElectricalUsage';
-
 
 export const Sinks = {
     dualFuelAirHeatPump: '882532f9-ea89-433d-9b38-6ab32790a986',

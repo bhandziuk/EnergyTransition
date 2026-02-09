@@ -63,3 +63,46 @@
 .no-marker {
     list-style-type: none;
 }
+
+.summary-usage-input {
+    display: grid;
+    max-width: 50em;
+    grid-template-areas: ". electrical-label gas-label"
+        "lowest-label lowest-electrical lowest-gas"
+        "highest-label highest-electrical highest-gas";
+
+    .lowest-label {
+        grid-area: lowest-label;
+    }
+
+    .highest-label {
+        grid-area: highest-label;
+    }
+
+    .electrical-label {
+        grid-area: electrical-label;
+        text-align: center;
+    }
+
+    .gas-label {
+        grid-area: gas-label;
+        text-align: center;
+
+    }
+
+    .lowest-electrical {
+        grid-area: lowest-electrical;
+    }
+
+    .highest-electrical {
+        grid-area: highest-electrical;
+    }
+
+    .lowest-gas {
+        grid-area: lowest-gas;
+    }
+
+    .highest-gas {
+        grid-area: highest-gas;
+    }
+}

@@ -1,4 +1,4 @@
-import { MeasuredValue } from "./usageBasedCharges";
+import { MeasuredValue } from "./MeasuredValue";
 
 export interface IMonthUsage {
     month: number,
