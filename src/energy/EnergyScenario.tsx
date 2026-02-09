@@ -5,7 +5,7 @@ import { NumberFormats } from "../helpers/NumbersFormats";
 import './energy.css';
 import { IDirectUsageBasedCharge, calculateDirectCosts, RateSchedule } from "./usageBasedCharges";
 import { IIndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
-import { UnitOfMeasure } from "./MeasuredValue";
+import { MeasuredValue, UnitOfMeasure } from "./MeasuredValue";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -146,6 +146,11 @@ export class EnergyScenario {
             }
             <div class="charge-row total">
                 <div class="source"><h4>Total usage costs</h4></div>
+                <div class="usage bold">{this.directUsage()
+                    .filter(o => o.usage.uom == this.scenarioUom)
+                    .reduce((acc, val) => acc.combine([val.usage]).find(o => o.uom == this.scenarioUom)!, new MeasuredValue(0, this.scenarioUom))
+                    .formatted()}
+                </div>
                 <div class="cost bold">{dollars(this.directCosts())}</div>
             </div>
         </ Show>
