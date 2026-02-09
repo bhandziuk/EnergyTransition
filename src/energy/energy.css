@@ -93,27 +93,36 @@
     .electrical-label {
         grid-area: electrical-label;
         text-align: center;
+        padding-right: 5px;
     }
 
     .gas-label {
         grid-area: gas-label;
         text-align: center;
-
+        padding-right: 5px;
     }
 
     .lowest-electrical {
         grid-area: lowest-electrical;
+        text-align: right;
+        padding-right: 5px;
     }
 
     .highest-electrical {
         grid-area: highest-electrical;
+        text-align: right;
+        padding-right: 5px;
     }
 
     .lowest-gas {
         grid-area: lowest-gas;
+        text-align: right;
+        padding-right: 5px;
     }
 
     .highest-gas {
         grid-area: highest-gas;
+        text-align: right;
+        padding-right: 5px;
     }
 }
