@@ -25,17 +25,19 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
         this.usage = thermUsage;//.concat(electricalUsage);
     }
     canConvertTo: string[] = [Sinks.dualFuelAirHeatPump, Sinks.electricalAirHeatPump, Sinks.hybridAirHeatPump];
-    convert: (toSink: string, relatedUsage: Array<IMonthUsage>) => IDirectUsageBasedCharge = (toSink, relatedUsage) => {
+    convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
         if (toSink == Sinks.dualFuelAirHeatPump) {
 
             // break down gas usage into 
             // 75% of heating is electric. Remainder remains gas.   
-            const newUsage = this.usage
-                .map(o => [
-                    <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toTherms(this.year, o.month)?.value ?? 0) * 0.75, 'therm') },
-                    <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) * 0.25 / DualFuelAirHeatPump.copElectrical, 'therm') }
-                ])
-                .flatMap(o => o);
+            const newElectricalUsage = this.usage
+                .map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) * 0.75 / DualFuelAirHeatPump.copElectrical, 'kWh') });
+
+            const newSuppGasUsage = this.usage
+                .map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toTherms(this.year, o.month)?.value ?? 0) * 0.25, 'therm') });
+
+            const newUsage = newSuppGasUsage.concat(newElectricalUsage);
+
             return new DualFuelAirHeatPump(this.year, newUsage);
         }
         else {

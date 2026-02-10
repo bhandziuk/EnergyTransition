@@ -36,14 +36,30 @@ export class MeasuredValue {
         }
     }
 
+    /** Ensures therms are in CCF */
+    public toCcf(year: number, month: number) {
+        if (this.uom == "kWh") {
+            throw new Error("Cannot convert kWh to therm");
+        }
+
+        if (this.uom == 'CCF') {
+            return this;
+        }
+
+        if (this.uom == 'therm') {
+            const thermFactor = thermFactors.find(o => o.month == month && o.year == year);
+            return new MeasuredValue(this.value / (thermFactor?.thermFactor ?? 1), 'therm');
+        }
+    }
+
     public toKwh(year: number, month: number) {
-        const thermPerKwh = 29.307111111;
+        const kwhPerTherm = 29.307111111;
         if (this.uom == "kWh") {
             return this;
         }
         else if (this.uom == 'therm' || this.uom == 'CCF') {
             const therms = this.toTherms(year, month);
-            return new MeasuredValue(therms!.value / thermPerKwh, 'kWh');
+            return new MeasuredValue(therms!.value * kwhPerTherm, 'kWh');
         }
     }
 }

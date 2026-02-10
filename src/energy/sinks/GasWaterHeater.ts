@@ -1,15 +1,17 @@
-import { possibleGasAppliancesInUseInLowestMonth, Sinks } from ".";
+import { ElectricalResistiveWaterHeater, possibleGasAppliancesInUseInLowestMonth, Sinks } from ".";
 import { UserUsageSummary } from "../../components";
 import hdd from '../../data/heatingDegreeDays.dunwoody.json';
 import { groupBy } from "../../helpers";
 import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
+import { HeatPumpWaterHeater } from "./HeatPumpWaterHeater";
+import { IProportionUse } from "./IProportionUse";
 
 
-export class GasWaterHeater implements IDirectUsageBasedCharge {
+export class GasWaterHeater implements IDirectUsageBasedCharge, IProportionUse {
 
-    constructor(year: number, summaryUsage: UserUsageSummary, appliancesInUse: Array<string>) {
+    constructor(private year: number, summaryUsage: UserUsageSummary, appliancesInUse: Array<string>) {
         const thisYearHdd = hdd.filter(o => o.year == year).toSorted((a, b) => a.hdd - b.hdd);
 
         const lowestHdd = thisYearHdd[thisYearHdd.length - 1];
@@ -22,6 +24,29 @@ export class GasWaterHeater implements IDirectUsageBasedCharge {
         // Assumes constant gas use for heating water all year long
         this.usage = months.map(month => <IMonthUsage>{ month: month, usage: new MeasuredValue(gasWaterHeaterUsageOnly, 'therm') });
     }
+
+    canConvertTo: string[] = [Sinks.heatPumpWaterHeater, Sinks.electricalResistiveWaterHeater];
+    convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
+        if (toSink == Sinks.electricalResistiveWaterHeater) {
+
+            const newUsage = this.usage
+                .map(o =>
+                    <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) / ElectricalResistiveWaterHeater.cop, 'kWh') }
+                );
+            return new ElectricalResistiveWaterHeater(this.year, newUsage);
+        }
+        else if (toSink == Sinks.heatPumpWaterHeater) {
+
+            const newUsage = this.usage
+                .map(o =>
+                    <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) / HeatPumpWaterHeater.cop, 'kWh') }
+                );
+            return new HeatPumpWaterHeater(this.year, newUsage);
+        }
+        else {
+            throw new Error("Cannot convert this to that.");
+        }
+    };
 
     usage: IMonthUsage[];
     usageFormatted: (uom?: UnitOfMeasure) => string = (uom) => groupBy(this.usage, o => o.usage.uom)

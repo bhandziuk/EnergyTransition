@@ -6,6 +6,7 @@ import './energy.css';
 import { IDirectUsageBasedCharge, calculateDirectCosts, RateSchedule } from "./usageBasedCharges";
 import { IIndirectUsageBasedCharge } from "./usageBasedCharges/IndirectUsageBasedCharge";
 import { MeasuredValue, UnitOfMeasure } from "./MeasuredValue";
+import { IProportionUse } from "./sinks/IProportionUse";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -43,6 +44,27 @@ export class EnergyScenario {
             </ div>
         </Show>
     }
+
+    public convertibles() {
+        return this.directUses.filter(o => this.isConvertible(o));
+    }
+
+    public nonConvertibles() {
+        return this.directUses.filter(o => !this.isConvertible(o));
+    }
+
+    private isConvertible(obj: any): obj is IProportionUse {
+        return obj && obj?.canConvertTo instanceof Array && obj?.convert instanceof Function;
+
+        // canConvertTo: Array<string>,
+        //     convert: (toSink: string, relatedUsage: Array<IMonthUsage>) => IDirectUsageBasedCharge
+    }
+
+    public convert: Component = (props) => <>
+        <div>
+            {this.directUses.map(o => o.displayName)}
+        </div>
+    </>
 
     public cost() {
         return this.directUses.filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom)).length ? this.totalCost() : 0;

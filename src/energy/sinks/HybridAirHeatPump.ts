@@ -13,7 +13,7 @@ export class HybridAirHeatPump implements IDirectUsageBasedCharge {
     public static copResistive: number = 1;
 
     public usageFormatted = () => '';//this.electricalUsage.formatted();
-    public static displayName: string = 'Electrical heat pump (primary electrical, supplementary resistive coils)';
+    public static displayName: string = 'Electrical heat pump (supplementary heat source: electrical resistive coils)';
     public id: string = Sinks.hybridAirHeatPump;
     public purpose: Purpose = 'Space heating';
     displayName = HybridAirHeatPump.displayName;

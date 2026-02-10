@@ -60,6 +60,7 @@ const InputField: Component<{ label: string; model: Model<number>, id: string }>
         </label>
         <input
             id={props.id}
+            type="number"
             value={props.model.value()}
             onInput={(e) => props.model.setValue(Number(e.currentTarget.value))}
         />

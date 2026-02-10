@@ -12,7 +12,7 @@ export class ElectricalAirHeatPump implements IDirectUsageBasedCharge {
     public static copHeatPump: number = 3;
 
     public usageFormatted = () => '';//this.electricalUsage.formatted();
-    public static displayName: string = 'Electrical heat pump';
+    public static displayName: string = 'Electrical heat pump (no supplementary heat source)';
     public id: string = Sinks.electricalAirHeatPump;
     public purpose: Purpose = 'Space heating';
     displayName = ElectricalAirHeatPump.displayName;

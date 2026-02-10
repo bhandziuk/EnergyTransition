@@ -1,11 +1,13 @@
 import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
-import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules } from "../energy";
-import { NumberFormats } from "../helpers";
+import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, IMonthUsage } from "../energy";
+import { groupBy, NumberFormats } from "../helpers";
 import { UserUsageSummary } from "./SummaryUsage";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
 import { summaryUsage } from "./SummaryUsage";
 import { GeorgiaPowerBaseFee } from "../energy/usageBasedCharges/GeorgiaPowerBaseFee";
 import { setInputElementValue } from "./NumberInput";
+import { HybridAirHeatPump } from "../energy/sinks/HybridAirHeatPump";
+import { HeatPumpWaterHeater } from "../energy/sinks/HeatPumpWaterHeater";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -21,7 +23,12 @@ const sinkNames = {
     [Sinks.gasWaterHeater]: GasWaterHeater.displayName,
     [Sinks.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.displayName,
     [Sinks.airConditioner]: AirConditioner.displayName,
-    // [Sinks.hybridHeatPump]: HybridHeatPump.displayName,
+    [Sinks.hybridAirHeatPump]: HybridAirHeatPump.displayName,
+    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
+    [Sinks.heatPumpWaterHeater]: HeatPumpWaterHeater.displayName,
+    // [Sinks.gasDryer]: gasDryer.displayName,
+    // [Sinks.gasGrill]: gasGrill.displayName,
+    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
 }
 
 const initialBaselineSinks = [
@@ -29,7 +36,12 @@ const initialBaselineSinks = [
     { id: Sinks.gasFurnace, selected: true },
     { id: Sinks.gasWaterHeater, selected: true },
     { id: Sinks.otherHouseholdElectricalUsage, selected: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
-    { id: Sinks.airConditioner, selected: true }
+    { id: Sinks.airConditioner, selected: true },
+    { id: Sinks.hybridAirHeatPump, selected: false },
+    { id: Sinks.electricalAirHeatPump, selected: false },
+    // { id: Sinks.gasDryer, selected: false },
+    // { id: Sinks.gasGrill, selected: false },
+    { id: Sinks.electricalResistiveWaterHeater, selected: false },
 ];
 
 const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
@@ -56,6 +68,10 @@ const gasRateSchedule = createMemo(() => [
         { name: "Constant", rate: gasThermRate(), limitUom: 'therm', upperLimit: Number.MAX_SAFE_INTEGER }
     ])
 ]);
+
+const [showNewConverter, setShowNewConverter] = createSignal(true);
+
+const [alternativeScenarios, setAlternativeScenarios] = createSignal<Array<CombinedEnergyScenario>>([]);
 
 const gasRatesComponent = () => <div class="gas-rate-simple">
 
@@ -89,43 +105,137 @@ class CombinedEnergyScenario {
             </div>
         }
     </div>
+
+    private conversions = createSignal<{ [from: string]: string }>({});
+
+    public startConversion: Component = (props) => {
+        const convertibles = [...new Set(this.parts.flatMap(o => o.convertibles()))];
+
+        return <div class="scenario-breakdown">
+            {convertibles
+                .map(o => <div>
+                    <label for={o.id}>Convert from:</label>
+                    <span id={o.id}>{o.displayName}</span>
+                    <div>To:</div>
+                    <ul class="no-marker">{o.canConvertTo.map(c => <li><input
+                        type="checkbox"
+                        id={o.id + c}
+                        checked={this.conversions[0]()[o.id] == c}
+                        oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: c }))}
+                    ></input>
+                        <label for={o.id + c}></label>{sinkNames[c]}</li>)}</ul>
+                </div>)
+            }
+            <div>
+                {convertibles
+                    .filter(o => this.conversions[0]()[o.id])
+                    .map(o => <div>{o.displayName + ' --> ' + sinkNames[this.conversions[0]()[o.id]]}</div>)}
+            </div>
+            <button onclick={(e) => {
+
+                const nonConverted = [...new Set(this.parts.flatMap(o => o.nonConvertibles()))];
+                const converted = convertibles.map(o => o.convert(this.conversions[0]()[o.id]));
+                const directUses = nonConverted.concat(converted);
+
+                const gasUsages = directUses.flatMap(o => o.usage.filter(o => o.usage.uom == 'CCF' || o.usage.uom == 'therm'))
+
+                    .map(o => ({ month: o.month, usage: o.usage.toCcf(year(), o.month)! }));
+
+                const electricalUsages = directUses.flatMap(o => o.usage
+                    .filter(o => o.usage.uom == 'kWh'));
+
+                const gasUsage = groupBy(gasUsages, o => o.month)
+                    .map(month => ({ month: month.key, usage: month.value.reduce((acc, val) => val.usage.combine(acc), [] as Array<MeasuredValue>)[0] }))
+                    .toSorted((a, b) => a.usage.value - b.usage.value)
+
+                const electricalUsage = groupBy(electricalUsages, o => o.month)
+                    .map(month => ({ month: month.key, usage: month.value.reduce((acc, val) => val.usage.combine(acc), [] as Array<MeasuredValue>)[0] }))
+                    .toSorted((a, b) => a.usage.value - b.usage.value);
+
+                const summaryUsage: UserUsageSummary = {
+                    highestElectrical: electricalUsage[electricalUsage.length - 1].usage,
+                    highestGas: gasUsage.length ? gasUsage[gasUsage.length - 1].usage : new MeasuredValue(0, 'CCF'),
+                    lowestElectrical: electricalUsage[0].usage,
+                    lowestGas: gasUsage.length ? gasUsage[0].usage : new MeasuredValue(0, 'CCF')
+                };
+                const newScenario = computeScenario("Electrified", year(), summaryUsage, directUses);
+                setAlternativeScenarios(alternativeScenarios().concat([newScenario]));
+
+            }}>Create new scenario</button>
+        </ div>;
+    }
 }
 
-const baseline = createMemo(() => {
+function computeScenario(scenarioName: string, year: number, summaryUsage: UserUsageSummary, directUses: Array<IDirectUsageBasedCharge>) {
     const gasFlatCharges: Array<IFlatCharge> = [
-        new AglBaseCharge(year(), false, true, summaryUsagePart.baselineSummaryUsage()),
-        new GasMarketerFee(year())
+        new AglBaseCharge(year, false, true, summaryUsage),
+        new GasMarketerFee(year)
     ];
-
-    const directUses: Array<IDirectUsageBasedCharge> = [
-        // new ElectricalHeatPump(year(),  electricalSpaceHeating()),
-        new OtherHouseholdElectricalUsage(summaryUsagePart.baselineSummaryUsage()),
-        new GasFurnace(year(), summaryUsagePart.baselineSummaryUsage()),
-        new GasWaterHeater(year(), summaryUsagePart.baselineSummaryUsage(), baselineSinks().filter(o => o.selected).map(o => o.id)),
-        new AirConditioner(year(), summaryUsagePart.baselineSummaryUsage()),
-        // new DualFuelHeatPump(year(),  [new MeasuredValue(255, 'therm'), new MeasuredValue(120, 'kWh')])
-    ]
-        .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
 
     const gasIndirectCharges: Array<IIndirectUsageBasedCharge> = [
     ];
 
-    const gasBaseScenario = new EnergyScenario("Gas", 'therm', directUses, gasIndirectCharges, gasFlatCharges, gasRateSchedule());
+    const gasBaseScenario = new EnergyScenario(
+        "Gas",
+        'therm',
+        directUses,
+        gasIndirectCharges,
+        gasFlatCharges,
+        gasRateSchedule()
+    );
 
     const electricalFlatCharges: Array<IFlatCharge> = [
-        new GeorgiaPowerBaseFee(year())
+        new GeorgiaPowerBaseFee(year)
     ];
 
     const electricalIndirectUses: Array<IIndirectUsageBasedCharge> = [
-        new GeorgiaPowerEnvironmentalFee(year()),
-        new GeorgiaPowerFranchiseFee(year(), true),
-        new FuelRecoveryRider(year()),
-        new DemandSideManagementResidentialRider(year())
+        new GeorgiaPowerEnvironmentalFee(year),
+        new GeorgiaPowerFranchiseFee(year, true),
+        new FuelRecoveryRider(year),
+        new DemandSideManagementResidentialRider(year)
     ];
 
-    const electricalBaseScenario = new EnergyScenario("Electrical", 'kWh', directUses, electricalIndirectUses, electricalFlatCharges, getElectricalRateSchedules(year()));
+    const electricalBaseScenario = new EnergyScenario(
+        "Electrical",
+        'kWh',
+        directUses,
+        electricalIndirectUses,
+        electricalFlatCharges,
+        getElectricalRateSchedules(year)
+    );
 
-    return new CombinedEnergyScenario("Before", [gasBaseScenario, electricalBaseScenario]);
+    const combined = new CombinedEnergyScenario(scenarioName, [gasBaseScenario, electricalBaseScenario]);
+    return combined;
+}
+
+
+
+const baseline = createMemo<Component>(() => {
+    const summaryUsage = summaryUsagePart.baselineSummaryUsage();
+
+    const directUses: Array<IDirectUsageBasedCharge> = [
+        new ElectricalAirHeatPump(year(), summaryUsage),
+        new OtherHouseholdElectricalUsage(summaryUsage),
+        new GasFurnace(year(), summaryUsage),
+        new GasWaterHeater(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
+        new AirConditioner(year(), summaryUsage),
+        new DualFuelAirHeatPump(year(), summaryUsage),
+        new HybridAirHeatPump(year(), summaryUsage)
+    ]
+        .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
+
+    const combinedBaseline = computeScenario("Before", year(), summaryUsagePart.baselineSummaryUsage(), directUses);
+
+    return (props) => <div class="scenarios">
+        <div class="flex-column">
+            {combinedBaseline.render(props)}
+            <button class="start-conversion" onclick={setShowNewConverter}>Electrify </button>
+        </div>
+        <Show when={showNewConverter()}>
+            {combinedBaseline.startConversion(props)}
+        </Show>
+        {alternativeScenarios().map(o => o.render(props))}
+    </div>
 });
 
 const EnergyCalculator: Component = (props) => {
@@ -136,14 +246,16 @@ const EnergyCalculator: Component = (props) => {
             <p>
                 This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
             </p>
+            <p>
+                This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/">Residential Service</a> plan.
+            </p>
             <h2>What are your current gas appliances?</h2>
+            <small>Not all of these work yet</small>
             {baselineSinksComponent()}
             <h2>What is your current utility usage?</h2>
             <summaryUsagePart.SummaryUsage />
             {gasRatesComponent()}
-
-
-            {baseline().render(props)}
+            {baseline()}
         </>
     );
 };

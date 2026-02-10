@@ -74,8 +74,12 @@ export function summaryUsage() {
 
 }
 export interface UserUsageSummary {
+    /** kWh */
     highestElectrical: MeasuredValue;
+    /** kWh */
     lowestElectrical: MeasuredValue;
+    /** CCF */
     highestGas: MeasuredValue;
+    /** CCF */
     lowestGas: MeasuredValue;
 }
