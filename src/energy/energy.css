@@ -1,6 +1,7 @@
 :root {
     --border-color: #dbdbdb;
     --scenario-max-width: 50em;
+    --scenario-min-width: 40em;
 }
 
 .charge-row {
@@ -42,6 +43,7 @@
 
 .scenarios {
     display: flex;
+    overflow: auto;
 
     @media (min-width:320px) {
         /* smartphones, iPhone, portrait 480x320 phones */
@@ -107,6 +109,7 @@
 
 .scenario-breakdown {
     max-width: var(--scenario-max-width);
+    min-width: var(--scenario-min-width)
 }
 
 .scenario-name {

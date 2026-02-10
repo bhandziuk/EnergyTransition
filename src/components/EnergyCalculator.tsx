@@ -131,38 +131,40 @@ class CombinedEnergyScenario {
                     .filter(o => this.conversions[0]()[o.id])
                     .map(o => <div>{o.displayName + ' --> ' + sinkNames[this.conversions[0]()[o.id]]}</div>)}
             </div>
-            <button onclick={(e) => {
+            <button
+                disabled={convertibles.some(o => !this.conversions[0]()[o.id])}
+                onclick={(e) => {
 
-                const nonConverted = [...new Set(this.parts.flatMap(o => o.nonConvertibles()))];
-                const converted = convertibles.map(o => o.convert(this.conversions[0]()[o.id]));
-                const directUses = nonConverted.concat(converted);
+                    const nonConverted = [...new Set(this.parts.flatMap(o => o.nonConvertibles()))];
+                    const converted = convertibles.map(o => o.convert(this.conversions[0]()[o.id]));
+                    const directUses = nonConverted.concat(converted);
 
-                const gasUsages = directUses.flatMap(o => o.usage.filter(o => o.usage.uom == 'CCF' || o.usage.uom == 'therm'))
+                    const gasUsages = directUses.flatMap(o => o.usage.filter(o => o.usage.uom == 'CCF' || o.usage.uom == 'therm'))
 
-                    .map(o => ({ month: o.month, usage: o.usage.toCcf(year(), o.month)! }));
+                        .map(o => ({ month: o.month, usage: o.usage.toCcf(year(), o.month)! }));
 
-                const electricalUsages = directUses.flatMap(o => o.usage
-                    .filter(o => o.usage.uom == 'kWh'));
+                    const electricalUsages = directUses.flatMap(o => o.usage
+                        .filter(o => o.usage.uom == 'kWh'));
 
-                const gasUsage = groupBy(gasUsages, o => o.month)
-                    .map(month => ({ month: month.key, usage: month.value.reduce((acc, val) => val.usage.combine(acc), [] as Array<MeasuredValue>)[0] }))
-                    .toSorted((a, b) => a.usage.value - b.usage.value)
+                    const gasUsage = groupBy(gasUsages, o => o.month)
+                        .map(month => ({ month: month.key, usage: month.value.reduce((acc, val) => val.usage.combine(acc), [] as Array<MeasuredValue>)[0] }))
+                        .toSorted((a, b) => a.usage.value - b.usage.value)
 
-                const electricalUsage = groupBy(electricalUsages, o => o.month)
-                    .map(month => ({ month: month.key, usage: month.value.reduce((acc, val) => val.usage.combine(acc), [] as Array<MeasuredValue>)[0] }))
-                    .toSorted((a, b) => a.usage.value - b.usage.value);
+                    const electricalUsage = groupBy(electricalUsages, o => o.month)
+                        .map(month => ({ month: month.key, usage: month.value.reduce((acc, val) => val.usage.combine(acc), [] as Array<MeasuredValue>)[0] }))
+                        .toSorted((a, b) => a.usage.value - b.usage.value);
 
-                const summaryUsage: UserUsageSummary = {
-                    highestElectrical: electricalUsage[electricalUsage.length - 1].usage,
-                    highestGas: gasUsage.length ? gasUsage[gasUsage.length - 1].usage : new MeasuredValue(0, 'CCF'),
-                    lowestElectrical: electricalUsage[0].usage,
-                    lowestGas: gasUsage.length ? gasUsage[0].usage : new MeasuredValue(0, 'CCF')
-                };
-                const newScenario = computeScenario("Electrified", year(), summaryUsage, directUses);
-                setAlternativeScenarios(alternativeScenarios().concat([newScenario]));
-                setShowNewConverter(false);
+                    const summaryUsage: UserUsageSummary = {
+                        highestElectrical: electricalUsage[electricalUsage.length - 1].usage,
+                        highestGas: gasUsage.length ? gasUsage[gasUsage.length - 1].usage : new MeasuredValue(0, 'CCF'),
+                        lowestElectrical: electricalUsage[0].usage,
+                        lowestGas: gasUsage.length ? gasUsage[0].usage : new MeasuredValue(0, 'CCF')
+                    };
+                    const newScenario = computeScenario("Electrified", year(), summaryUsage, directUses);
+                    setAlternativeScenarios(alternativeScenarios().concat([newScenario]));
+                    setShowNewConverter(false);
 
-            }}>Create new scenario</button>
+                }}>Create new scenario</button>
         </ div>;
     }
 }
