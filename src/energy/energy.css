@@ -109,6 +109,11 @@
     max-width: var(--scenario-max-width);
 }
 
+.scenario-name {
+    display: flex;
+    justify-content: space-between;
+}
+
 .no-marker {
     list-style-type: none;
 }

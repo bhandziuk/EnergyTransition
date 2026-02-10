@@ -1,6 +1,6 @@
 import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
 import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, IMonthUsage } from "../energy";
-import { groupBy, NumberFormats } from "../helpers";
+import { createGuid, groupBy, NumberFormats } from "../helpers";
 import { UserUsageSummary } from "./SummaryUsage";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
 import { summaryUsage } from "./SummaryUsage";
@@ -91,12 +91,12 @@ const gasRatesComponent = () => <div class="gas-rate-simple">
 
 class CombinedEnergyScenario {
 
-    constructor(private scenarioName: string, private parts: Array<EnergyScenario>) {
+    constructor(public id: string, public scenarioName: string, private parts: Array<EnergyScenario>, private removeSelf: () => void) {
 
     }
 
     public render: Component = (props) => <div class="scenario-breakdown">
-        <h2>{this.scenarioName}</h2>
+        <h2 class="scenario-name">{this.scenarioName}<Show when={this.scenarioName != 'Before'}><button onclick={this.removeSelf}>Remove</button></Show></h2>
         {this.parts.map(part => part.render(props))}
         {
             <div class="charge-row">
@@ -205,7 +205,9 @@ function computeScenario(scenarioName: string, year: number, summaryUsage: UserU
         getElectricalRateSchedules(year)
     );
 
-    const combined = new CombinedEnergyScenario(scenarioName, [gasBaseScenario, electricalBaseScenario]);
+    const id = createGuid();
+
+    const combined = new CombinedEnergyScenario(id, scenarioName, [gasBaseScenario, electricalBaseScenario], () => setAlternativeScenarios(alternativeScenarios().filter(o => o.id != id)));
     return combined;
 }
 
