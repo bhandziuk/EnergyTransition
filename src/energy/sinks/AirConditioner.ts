@@ -7,7 +7,7 @@ import { IMonthUsage } from "../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges";
 
 export class AirConditioner implements IDirectUsageBasedCharge {
-    constructor(private year: number, private inputUsage: UserUsageSummary | Array<IMonthUsage>) {
+    constructor(private year: number, inputUsage: UserUsageSummary | Array<IMonthUsage>) {
 
         if (inputUsage instanceof Array) {
             this.usage = inputUsage;

@@ -1,10 +1,11 @@
-import { DualFuelAirHeatPump, Sinks } from ".";
+import { DualFuelAirHeatPump, ElectricalAirHeatPump, Sinks } from ".";
 import { UserUsageSummary } from "../../components";
 import hdd from '../../data/heatingDegreeDays.dunwoody.json';
 import { groupBy } from "../../helpers";
 import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
+import { HybridAirHeatPump } from "./HybridAirHeatPump";
 import { IProportionUse } from "./IProportionUse";
 
 
@@ -39,6 +40,29 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
             const newUsage = newSuppGasUsage.concat(newElectricalUsage);
 
             return new DualFuelAirHeatPump(this.year, newUsage);
+        }
+        else if (toSink == Sinks.hybridAirHeatPump) {
+
+            // break down gas usage into 
+            // 75% of heating is electric. Remainder remains resistive coils.   
+            const newElectricalUsage = this.usage
+                .map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) * 0.75 / HybridAirHeatPump.copHeatPump, 'kWh') });
+
+            const newSuppElectricalUsage = this.usage
+                .map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) * 0.25 / HybridAirHeatPump.copResistive, 'kWh') });
+
+            const newUsage = newSuppElectricalUsage.concat(newElectricalUsage);
+
+            return new HybridAirHeatPump(this.year, newUsage);
+        }
+        else if (toSink == Sinks.electricalAirHeatPump) {
+
+            // break down gas usage into 
+            // 75% of heating is electric. Remainder remains resistive coils.   
+            const newUsage = this.usage
+                .map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) / ElectricalAirHeatPump.copHeatPump, 'kWh') });
+
+            return new ElectricalAirHeatPump(this.year, newUsage);
         }
         else {
             throw new Error("Cannot convert this to that.");

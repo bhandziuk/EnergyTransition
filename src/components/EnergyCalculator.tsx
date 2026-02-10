@@ -69,7 +69,7 @@ const gasRateSchedule = createMemo(() => [
     ])
 ]);
 
-const [showNewConverter, setShowNewConverter] = createSignal(true);
+const [showNewConverter, setShowNewConverter] = createSignal(false);
 
 const [alternativeScenarios, setAlternativeScenarios] = createSignal<Array<CombinedEnergyScenario>>([]);
 
@@ -160,6 +160,7 @@ class CombinedEnergyScenario {
                 };
                 const newScenario = computeScenario("Electrified", year(), summaryUsage, directUses);
                 setAlternativeScenarios(alternativeScenarios().concat([newScenario]));
+                setShowNewConverter(false);
 
             }}>Create new scenario</button>
         </ div>;
@@ -208,9 +209,7 @@ function computeScenario(scenarioName: string, year: number, summaryUsage: UserU
     return combined;
 }
 
-
-
-const baseline = createMemo<Component>(() => {
+const scenarios = createMemo<Component>(() => {
     const summaryUsage = summaryUsagePart.baselineSummaryUsage();
 
     const directUses: Array<IDirectUsageBasedCharge> = [
@@ -229,12 +228,12 @@ const baseline = createMemo<Component>(() => {
     return (props) => <div class="scenarios">
         <div class="flex-column">
             {combinedBaseline.render(props)}
-            <button class="start-conversion" onclick={setShowNewConverter}>Electrify </button>
+            <button class="start-conversion" onclick={setShowNewConverter}>Electrify</button>
         </div>
+        {alternativeScenarios().map(o => o.render(props))}
         <Show when={showNewConverter()}>
             {combinedBaseline.startConversion(props)}
         </Show>
-        {alternativeScenarios().map(o => o.render(props))}
     </div>
 });
 
@@ -255,7 +254,7 @@ const EnergyCalculator: Component = (props) => {
             <h2>What is your current utility usage?</h2>
             <summaryUsagePart.SummaryUsage />
             {gasRatesComponent()}
-            {baseline()}
+            {scenarios()}
         </>
     );
 };
