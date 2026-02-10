@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { calculateDddc, UserUsageSummary } from "../components";
+import rates from "../data/aglGasRates.json";
 import hdd from '../data/heatingDegreeDays.dunwoody.json';
-import rates from "../data/rates.json";
 
 type RateSet = typeof rates[0];
 

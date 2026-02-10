@@ -1,5 +1,6 @@
 import { Component, createMemo, createSignal } from "solid-js";
 import { MeasuredValue } from "../energy";
+import { setInputElementValue } from "./NumberInput";
 
 export function summaryUsage() {
 
@@ -39,22 +40,30 @@ export function summaryUsage() {
         <input
             class="highest-electrical"
             value={highestElectrical()}
-            onInput={(e) => setHighestElectrical(Number(e.currentTarget.value))}
+            type="number"
+            min="0"
+            onInput={setInputElementValue(setHighestElectrical)}
         />
         <input
             class="highest-gas"
             value={highestGas()}
-            onInput={(e) => setHighestGas(Number(e.currentTarget.value))}
+            min="0"
+            type="number"
+            onInput={setInputElementValue(setHighestGas)}
         />
         <input
             class="lowest-electrical"
             value={lowestElectrical()}
-            onInput={(e) => setLowestElectrical(Number(e.currentTarget.value))}
+            min="0"
+            type="number"
+            onInput={setInputElementValue(setLowestElectrical)}
         />
         <input
             class="lowest-gas"
             value={lowestGas()}
-            onInput={(e) => setLowestGas(Number(e.currentTarget.value))}
+            min="0"
+            type="number"
+            onInput={setInputElementValue(setLowestGas)}
         />
     </div>
 

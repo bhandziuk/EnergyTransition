@@ -1,10 +1,11 @@
 import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
-import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner } from "../energy";
+import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules } from "../energy";
 import { NumberFormats } from "../helpers";
 import { UserUsageSummary } from "./SummaryUsage";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
 import { summaryUsage } from "./SummaryUsage";
 import { GeorgiaPowerBaseFee } from "../energy/usageBasedCharges/GeorgiaPowerBaseFee";
+import { setInputElementValue } from "./NumberInput";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -48,23 +49,29 @@ const baselineSinksComponent = () => <>
     </ul>
 </>
 
-// TODO put in a .json file linked to the year
-const georgiaPowerRateSchedule = [
-    new RateSchedule("Summer rate schedule", [6, 7, 8, 9], [
-        { name: '1st tier, up to 650 kWh', rate: 0.086121, limitUom: 'kWh', upperLimit: 650 },
-        { name: '2nd tier, next 350 kWh', rate: 0.143047, limitUom: 'kWh', upperLimit: 1000 },
-        { name: '3rd tier, over 1000 kWh', rate: 0.148051, limitUom: 'kWh', upperLimit: Number.MAX_SAFE_INTEGER },
-    ]),
-    new RateSchedule("Winter rate schedule", [1, 2, 3, 4, 5, 10, 11, 12], [
-        { name: 'All usage', rate: 0.080602, limitUom: 'kWh', upperLimit: Number.MAX_SAFE_INTEGER },
-    ])
-];
+const [gasThermRate, setGasThermRate] = createSignal(0.75);
 
-const gasRateSchedule = [
+const gasRateSchedule = createMemo(() => [
     new RateSchedule("Gas Rates", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [
-        { name: "Constant", rate: 0.75, limitUom: 'therm', upperLimit: Number.MAX_SAFE_INTEGER }
+        { name: "Constant", rate: gasThermRate(), limitUom: 'therm', upperLimit: Number.MAX_SAFE_INTEGER }
     ])
-];
+]);
+
+const gasRatesComponent = () => <div class="gas-rate-simple">
+
+    <label for="gas-rate">
+        What was your gas rate last year?
+    </label>
+    <input
+        id="gas-rate"
+        value={gasThermRate()}
+        type="number"
+        step="0.01"
+        min="0"
+        onInput={setInputElementValue(setGasThermRate)}
+    />
+    <span>$/therm</span>
+</div>
 
 class CombinedEnergyScenario {
 
@@ -103,7 +110,7 @@ const baseline = createMemo(() => {
     const gasIndirectCharges: Array<IIndirectUsageBasedCharge> = [
     ];
 
-    const gasBaseScenario = new EnergyScenario("Gas", 'therm', directUses, gasIndirectCharges, gasFlatCharges, gasRateSchedule);
+    const gasBaseScenario = new EnergyScenario("Gas", 'therm', directUses, gasIndirectCharges, gasFlatCharges, gasRateSchedule());
 
     const electricalFlatCharges: Array<IFlatCharge> = [
         new GeorgiaPowerBaseFee(year())
@@ -116,7 +123,7 @@ const baseline = createMemo(() => {
         new DemandSideManagementResidentialRider(year())
     ];
 
-    const electricalBaseScenario = new EnergyScenario("Electrical", 'kWh', directUses, electricalIndirectUses, electricalFlatCharges, georgiaPowerRateSchedule);
+    const electricalBaseScenario = new EnergyScenario("Electrical", 'kWh', directUses, electricalIndirectUses, electricalFlatCharges, getElectricalRateSchedules(year()));
 
     return new CombinedEnergyScenario("Before", [gasBaseScenario, electricalBaseScenario]);
 });
@@ -131,9 +138,10 @@ const EnergyCalculator: Component = (props) => {
             </p>
             <h2>What are your current gas appliances?</h2>
             {baselineSinksComponent()}
-
             <h2>What is your current utility usage?</h2>
             <summaryUsagePart.SummaryUsage />
+            {gasRatesComponent()}
+
 
             {baseline().render(props)}
         </>

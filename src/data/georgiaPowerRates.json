@@ -1,0 +1,54 @@
+{
+    "2025": [
+        {
+            "name": "Summer rate schedule",
+            "applicableMonths": [
+                6,
+                7,
+                8,
+                9
+            ],
+            "rates": [
+                {
+                    "name": "1st tier, up to 650 kWh",
+                    "rate": 0.086121,
+                    "limitUom": "kWh",
+                    "upperLimit": 650
+                },
+                {
+                    "name": "2nd tier, next 350 kWh",
+                    "rate": 0.143047,
+                    "limitUom": "kWh",
+                    "upperLimit": 1000
+                },
+                {
+                    "name": "3rd tier, over 1000 kWh",
+                    "rate": 0.148051,
+                    "limitUom": "kWh",
+                    "upperLimit": null
+                }
+            ]
+        },
+        {
+            "name": "Winter rate schedule",
+            "applicableMonths": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                10,
+                11,
+                12
+            ],
+            "rates": [
+                {
+                    "name": "All usage",
+                    "rate": 0.080602,
+                    "limitUom": "kWh",
+                    "upperLimit": null
+                }
+            ]
+        }
+    ]
+}

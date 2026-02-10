@@ -1,6 +1,22 @@
+import rates from '../../data/georgiaPowerRates.json';
 import { groupBy } from "../../helpers";
 import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
 import { IMonthUsage } from "../MonthUsage";
+
+type RateSet = typeof rates[2025];
+
+export function getElectricalRateSchedules(year: number) {
+
+    const allRates: { [year: number]: RateSet } = rates;
+
+    const yearRates = allRates[year];
+
+    return yearRates.map(o => new RateSchedule(
+        o.name,
+        o.applicableMonths,
+        o.rates.map(rate => (<IRateBin>{ limitUom: rate.limitUom, name: rate.name, rate: rate.rate, upperLimit: rate.upperLimit ?? Number.MAX_SAFE_INTEGER }))
+    ));
+}
 
 export class RateSchedule {
     constructor(public name: string, public applicableMonths: Array<number>, public rates: Array<IRateBin>) {
