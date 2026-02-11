@@ -170,9 +170,9 @@ body {
     list-style-type: none;
 }
 
-input {
-    background: var(--theme-color-1);
-}
+/* input {
+    background: var(--theme-color-1); 
+} */
 
 input[type="checkbox"] {
     accent-color: var(--theme-color-1);
@@ -183,6 +183,7 @@ button {
     background: var(--theme-color-1);
     border: 2px solid var(--border-color);
     padding: 0.5em;
+    border-radius: 5px;
 }
 
 .summary-usage-input {
@@ -264,6 +265,7 @@ button {
     >input {
         border: 2px solid var(--border-color);
         text-align: right;
+        border-radius: 5px;
     }
 }
 
