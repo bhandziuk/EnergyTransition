@@ -99,12 +99,12 @@ class CombinedEnergyScenario {
         <div class="scenario-header">
             <h2 class="scenario-name">{this.scenarioName}
             </h2>
-            <Show when={this.scenarioName != 'Before'}><button onclick={this.removeSelf}>Remove</button></Show>
+            <Show when={this.id != baselineScenarioId}><button onclick={this.removeSelf}>Remove</button></Show>
         </div>
         {this.parts.map(part => part.render(props))}
         {
-            <div class="charge-row">
-                <div class="source"><h3>Total Cost</h3></div>
+            <div class="charge-row total">
+                <div class="source"><h3>Total annual cost</h3></div>
                 <div class="cost bold">{dollars(this.parts.map(part => part.cost()).reduce((acc, val) => acc + val, 0))}</div>
             </div>
         }
@@ -164,7 +164,9 @@ class CombinedEnergyScenario {
                         lowestElectrical: electricalUsage[0].usage,
                         lowestGas: gasUsage.length ? gasUsage[0].usage : new MeasuredValue(0, 'CCF')
                     };
-                    const newScenario = computeScenario("Electrified", year(), summaryUsage, directUses);
+                    const id = createGuid();
+
+                    const newScenario = computeScenario(id, "Electrified alternative " + (alternativeScenarios().length + 1), year(), summaryUsage, directUses);
                     setAlternativeScenarios(alternativeScenarios().concat([newScenario]));
                     setShowNewConverter(false);
 
@@ -173,7 +175,7 @@ class CombinedEnergyScenario {
     }
 }
 
-function computeScenario(scenarioName: string, year: number, summaryUsage: UserUsageSummary, directUses: Array<IDirectUsageBasedCharge>) {
+function computeScenario(id: string, scenarioName: string, year: number, summaryUsage: UserUsageSummary, directUses: Array<IDirectUsageBasedCharge>) {
     const gasFlatCharges: Array<IFlatCharge> = [
         new AglBaseCharge(year, false, true, summaryUsage),
         new GasMarketerFee(year)
@@ -211,11 +213,11 @@ function computeScenario(scenarioName: string, year: number, summaryUsage: UserU
         getElectricalRateSchedules(year)
     );
 
-    const id = createGuid();
-
     const combined = new CombinedEnergyScenario(id, scenarioName, [gasBaseScenario, electricalBaseScenario], () => setAlternativeScenarios(alternativeScenarios().filter(o => o.id != id)));
     return combined;
 }
+
+const baselineScenarioId = '47f95d21-94e0-40a8-80e4-efd3eb75b3ae';
 
 const scenarios = createMemo<Component>(() => {
     const summaryUsage = summaryUsagePart.baselineSummaryUsage();
@@ -231,7 +233,7 @@ const scenarios = createMemo<Component>(() => {
     ]
         .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
 
-    const combinedBaseline = computeScenario("Before", year(), summaryUsagePart.baselineSummaryUsage(), directUses);
+    const combinedBaseline = computeScenario(baselineScenarioId, year() + ' energy usage', year(), summaryUsagePart.baselineSummaryUsage(), directUses);
 
     return (props) => <div class="scenarios">
         <div class="flex-column">
@@ -259,7 +261,7 @@ const EnergyCalculator: Component = (props) => {
             <h2>What are your current gas appliances?</h2>
             <small>Not all of these work yet</small>
             {baselineSinksComponent()}
-            <h2>What is your current utility usage?</h2>
+            <h2>What was your {year()} utility usage?</h2>
             <summaryUsagePart.SummaryUsage />
             {gasRatesComponent()}
             {scenarios()}

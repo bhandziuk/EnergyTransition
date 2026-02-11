@@ -155,6 +155,7 @@ body {
     justify-content: space-between;
     border-left: var(--theme-color-3) 10px solid;
     align-items: baseline;
+    padding: 0 5px;
 }
 
 .no-marker {
