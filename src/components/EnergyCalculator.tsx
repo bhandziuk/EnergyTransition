@@ -96,7 +96,11 @@ class CombinedEnergyScenario {
     }
 
     public render: Component = (props) => <div class="scenario-breakdown">
-        <h2 class="scenario-name">{this.scenarioName}<Show when={this.scenarioName != 'Before'}><button onclick={this.removeSelf}>Remove</button></Show></h2>
+        <div class="scenario-header">
+            <h2 class="scenario-name">{this.scenarioName}
+            </h2>
+            <Show when={this.scenarioName != 'Before'}><button onclick={this.removeSelf}>Remove</button></Show>
+        </div>
         {this.parts.map(part => part.render(props))}
         {
             <div class="charge-row">

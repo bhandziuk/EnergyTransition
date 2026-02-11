@@ -1,7 +1,15 @@
 :root {
-    --border-color: #dbdbdb;
+    --border-color: #36363e;
     --scenario-max-width: 50em;
     --scenario-min-width: 40em;
+    --theme-color-1: #94afec;
+    --theme-color-2: #b3dfcf;
+    --theme-color-3: #eee346;
+}
+
+body {
+    background: var(--theme-color-2);
+    font-family: Sans-Serif;
 }
 
 .charge-row {
@@ -109,7 +117,7 @@
 
 .scenario-breakdown {
     max-width: var(--scenario-max-width);
-
+    padding: 0.25em;
 
     @media (min-width:320px) {
         /* smartphones, iPhone, portrait 480x320 phones */
@@ -142,13 +150,29 @@
     }
 }
 
-.scenario-name {
+.scenario-header {
     display: flex;
     justify-content: space-between;
+    border-left: var(--theme-color-3) 10px solid;
+    align-items: baseline;
 }
 
 .no-marker {
     list-style-type: none;
+}
+
+input {
+    background: var(--theme-color-1);
+}
+
+input[type="checkbox"] {
+    accent-color: var(--theme-color-1);
+}
+
+button {
+    background: var(--theme-color-1);
+    border: 2px solid var(--border-color);
+    padding: 0.5em;
 }
 
 .summary-usage-input {
@@ -163,8 +187,11 @@
         "highest-label highest-electrical highest-gas";
 
     >* {
-        background-color: white;
         border: 0;
+    }
+
+    > :not(input) {
+        background-color: var(--theme-color-2);
     }
 
     .top-left {
