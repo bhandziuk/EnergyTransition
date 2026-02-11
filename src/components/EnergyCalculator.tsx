@@ -64,6 +64,7 @@ const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
 
 const baselineSinksComponent = () => <>
     {groupBy(baselineSinks().filter(o => !o.required), o => sinkPurposes[o.id])
+        .toSorted((a, b) => a.key.localeCompare(b.key))
         .map(o => <>
             <div>{o.key}</div>
             <ul>
