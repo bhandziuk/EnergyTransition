@@ -1,13 +1,9 @@
 import { Component, createEffect, createMemo, createSignal, onMount, Show } from "solid-js";
-import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, IMonthUsage } from "../energy";
+import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, HybridAirHeatPump, HeatPumpWaterHeater, GeorgiaPowerBaseFee } from "../energy";
 import { createGuid, groupBy, NumberFormats } from "../helpers";
-import { UserUsageSummary } from "./SummaryUsage";
+import { summaryUsage, UserUsageSummary } from "../components";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
-import { summaryUsage } from "./SummaryUsage";
-import { GeorgiaPowerBaseFee } from "../energy/usageBasedCharges/GeorgiaPowerBaseFee";
 import { setInputElementValue } from "./NumberInput";
-import { HybridAirHeatPump } from "../energy/sinks/HybridAirHeatPump";
-import { HeatPumpWaterHeater } from "../energy/sinks/HeatPumpWaterHeater";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -15,7 +11,7 @@ const year = createMemo(() => 2025);
 
 const summaryUsagePart = summaryUsage();
 
-const sinkNames = {
+export const sinkNames = {
     [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.displayName,
     [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
     [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
@@ -31,7 +27,7 @@ const sinkNames = {
     [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
 }
 
-const sinkPurposes = {
+export const sinkPurposes = {
     [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.purpose,
     [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
     [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
@@ -84,33 +80,6 @@ const baselineSinksComponent = () => <>
         </>)}
 </>
 
-const [gasThermRate, setGasThermRate] = createSignal(0.75);
-
-const gasRateSchedule = createMemo(() => [
-    new RateSchedule("Gas Rates", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [
-        { name: "Constant", rate: gasThermRate(), limitUom: 'therm', upperLimit: Number.MAX_SAFE_INTEGER }
-    ])
-]);
-
-const [showNewConverter, setShowNewConverter] = createSignal(false);
-
-const [alternativeScenarios, setAlternativeScenarios] = createSignal<Array<CombinedEnergyScenario>>([]);
-
-const gasRatesComponent = () => <div class="gas-rate-simple">
-
-    <label for="gas-rate">
-        What was your gas rate last year?
-    </label>
-    <input
-        id="gas-rate"
-        value={gasThermRate()}
-        type="number"
-        step="0.01"
-        min="0"
-        onInput={setInputElementValue(setGasThermRate)}
-    />
-    <span>$/therm</span>
-</div>
 
 class CombinedEnergyScenario {
 
@@ -118,20 +87,28 @@ class CombinedEnergyScenario {
 
     }
 
-    public render: Component = (props) => <div class="scenario-breakdown">
-        <div class={"scenario-header " + (this.id == baselineScenarioId ? 'baseline' : 'alternative')}>
-            <h2 class="scenario-name">{this.scenarioName}
-            </h2>
-            <Show when={this.id != baselineScenarioId}><button onclick={this.removeSelf}>Remove</button></Show>
-        </div>
-        {this.parts.map(part => part.render(props))}
-        {
-            <div class="charge-row total">
-                <div class="source"><h3>Total annual cost</h3></div>
-                <div class="cost bold">{dollars(this.parts.map(part => part.cost()).reduce((acc, val) => acc + val, 0))}</div>
+    public render: Component<{ baselineCost: number }> = (props) => {
+
+        return <div class="scenario-breakdown">
+            <div class={"scenario-header " + (this.id == baselineScenarioId ? 'baseline' : 'alternative')}>
+                <h2 class="scenario-name">{this.scenarioName}
+                </h2>
+                <Show when={this.id != baselineScenarioId}><button onclick={this.removeSelf}>Remove</button></Show>
+                <Show when={this.id == baselineScenarioId}><button class="start-conversion" onclick={setShowNewConverter}>Add electrification scenario</button></Show>
             </div>
-        }
-    </div >
+            {this.parts.map(part => part.render(props))}
+            {
+                <div class="charge-row total">
+                    <div class="source"><h3>Total annual cost</h3></div>
+                    <div class={"cost bold " + (props.baselineCost > this.totalCost() ? 'better-cost' : props.baselineCost < this.totalCost() ? 'worse-cost' : '')}>
+                        {dollars(this.totalCost())}
+                    </div>
+                </div>
+            }
+        </div >
+    }
+
+    public totalCost = () => this.parts.map(part => part.cost()).reduce((acc, val) => acc + val, 0);
 
     private conversions = createSignal<{ [from: string]: string }>({});
 
@@ -150,13 +127,16 @@ class CombinedEnergyScenario {
                     <label for={o.id}>Convert from:</label>
                     <span id={o.id}>{o.displayName}</span>
                     <div>To:</div>
-                    <ul class="no-marker">{o.canConvertTo.map(c => <li><input
-                        type="checkbox"
-                        id={o.id + c}
-                        checked={this.conversions[0]()[o.id] == c}
-                        oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: c }))}
-                    ></input>
-                        <label for={o.id + c}></label>{sinkNames[c]}</li>)}</ul>
+                    <ul class="no-marker">{o.canConvertTo.map(c => <li>
+                        <input
+                            type="checkbox"
+                            id={o.id + c}
+                            checked={this.conversions[0]()[o.id] == c}
+                            oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: c }))}
+                        ></input>
+                        <label for={o.id + c}>{sinkNames[c]}</label>
+                    </li>)}
+                    </ul>
                 </div>)
             }
             <div>
@@ -204,6 +184,35 @@ class CombinedEnergyScenario {
     }
 }
 
+const [gasThermRate, setGasThermRate] = createSignal(0.75);
+
+const gasRateSchedule = createMemo(() => [
+    new RateSchedule("Gas Rates", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [
+        { name: "Constant", rate: gasThermRate(), limitUom: 'therm', upperLimit: Number.MAX_SAFE_INTEGER }
+    ])
+]);
+
+const [showNewConverter, setShowNewConverter] = createSignal(false);
+
+const [alternativeScenarios, setAlternativeScenarios] = createSignal<Array<CombinedEnergyScenario>>([]);
+
+const gasRatesComponent = () => <div class="gas-rate-simple">
+
+    <label for="gas-rate">
+        What was your gas rate last year?
+    </label>
+    <input
+        id="gas-rate"
+        value={gasThermRate()}
+        type="number"
+        step="0.01"
+        min="0"
+        onInput={setInputElementValue(setGasThermRate)}
+    />
+    <span>$/therm</span>
+</div>
+
+
 function computeScenario(id: string, scenarioName: string, year: number, summaryUsage: UserUsageSummary, directUses: Array<IDirectUsageBasedCharge>) {
     const gasFlatCharges: Array<IFlatCharge> = [
         new AglBaseCharge(year, false, true, summaryUsage),
@@ -246,7 +255,7 @@ function computeScenario(id: string, scenarioName: string, year: number, summary
     return combined;
 }
 
-const baselineScenarioId = '47f95d21-94e0-40a8-80e4-efd3eb75b3ae';
+export const baselineScenarioId = '47f95d21-94e0-40a8-80e4-efd3eb75b3ae';
 
 const scenarios = createMemo<Component>(() => {
     const summaryUsage = summaryUsagePart.baselineSummaryUsage();
@@ -265,11 +274,8 @@ const scenarios = createMemo<Component>(() => {
     const combinedBaseline = computeScenario(baselineScenarioId, year() + ' energy usage', year(), summaryUsagePart.baselineSummaryUsage(), directUses);
 
     return (props) => <div class="scenarios">
-        <div class="flex-column">
-            {combinedBaseline.render(props)}
-            <button class="start-conversion" onclick={setShowNewConverter}>Electrify</button>
-        </div>
-        {alternativeScenarios().map(o => o.render(props))}
+        {combinedBaseline.render({ baselineCost: combinedBaseline.totalCost() })}
+        {alternativeScenarios().map(o => o.render({ baselineCost: combinedBaseline.totalCost() }))}
         <Show when={showNewConverter()}>
             {combinedBaseline.startConversion(props)}
         </Show>
@@ -280,22 +286,25 @@ const EnergyCalculator: Component = (props) => {
 
     return (
         <>
-            <h1>Home Energy Use Calculator</h1>
-            <p>
-                This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
-            </p>
-            <p>
-                This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/">Residential Service</a> plan.
-            </p>
-            <h2>What are your current household appliances?</h2>
-            <small>Not all of these work yet</small>
-            {baselineSinksComponent()}
-            <h2>What was your {year()} utility usage?</h2>
-            <summaryUsagePart.SummaryUsage />
-            {gasRatesComponent()}
+            <div class="initial-info">
+                <h1>Home Energy Use Calculator</h1>
+                <p>
+                    This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
+                </p>
+                <p>
+                    This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/">Residential Service</a> plan.
+                </p>
+                <h2>What are your current household appliances?</h2>
+                <small>Not all of these work yet</small>
+                {baselineSinksComponent()}
+                <h2>What was your {year()} utility usage?</h2>
+                <summaryUsagePart.SummaryUsage />
+                {gasRatesComponent()}
+            </div>
             {scenarios()}
         </>
     );
 };
+
 
 export { EnergyCalculator };

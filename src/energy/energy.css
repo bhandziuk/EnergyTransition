@@ -11,6 +11,11 @@
 body {
     background: var(--theme-color-2);
     font-family: Sans-Serif;
+    margin: 0;
+}
+
+.initial-info {
+    padding: 0 8px;
 }
 
 .charge-row {
@@ -114,6 +119,14 @@ body {
 
 .bold {
     font-weight: bold;
+}
+
+.better-cost {
+    color: green;
+}
+
+.worse-cost {
+    color: red;
 }
 
 .scenario-breakdown {

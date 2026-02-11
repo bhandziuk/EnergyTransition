@@ -5,6 +5,8 @@ export * from './ElectricalAirHeatPump';
 export * from './ElectricalResistiveWaterHeater';
 export * from './GasFurnace';
 export * from './GasWaterHeater';
+export * from './HeatPumpWaterHeater';
+export * from './HybridAirHeatPump';
 export * from './OtherHouseholdElectricalUsage';
 
 export const Sinks = {
