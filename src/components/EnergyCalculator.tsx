@@ -1,4 +1,4 @@
-import { Component, createEffect, createMemo, createSignal, Show } from "solid-js";
+import { Component, createEffect, createMemo, createSignal, onMount, Show } from "solid-js";
 import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, IMonthUsage } from "../energy";
 import { createGuid, groupBy, NumberFormats } from "../helpers";
 import { UserUsageSummary } from "./SummaryUsage";
@@ -136,8 +136,14 @@ class CombinedEnergyScenario {
 
     public startConversion: Component = (props) => {
         const convertibles = [...new Set(this.parts.flatMap(o => o.convertibles()))];
+        let div: any;
+        onMount(() => {
+            if (div instanceof HTMLDivElement) {
+                div.scrollIntoView({ behavior: "smooth" });
+            }
+        });
 
-        return <div class="scenario-breakdown">
+        return <div class="scenario-breakdown" ref={div}>
             {convertibles
                 .map(o => <div>
                     <label for={o.id}>Convert from:</label>
