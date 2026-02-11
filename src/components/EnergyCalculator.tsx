@@ -118,7 +118,7 @@ class CombinedEnergyScenario {
     }
 
     public render: Component = (props) => <div class="scenario-breakdown">
-        <div class="scenario-header">
+        <div class={"scenario-header " + (this.id == baselineScenarioId ? 'baseline' : 'alternative')}>
             <h2 class="scenario-name">{this.scenarioName}
             </h2>
             <Show when={this.id != baselineScenarioId}><button onclick={this.removeSelf}>Remove</button></Show>
@@ -130,7 +130,7 @@ class CombinedEnergyScenario {
                 <div class="cost bold">{dollars(this.parts.map(part => part.cost()).reduce((acc, val) => acc + val, 0))}</div>
             </div>
         }
-    </div>
+    </div >
 
     private conversions = createSignal<{ [from: string]: string }>({});
 

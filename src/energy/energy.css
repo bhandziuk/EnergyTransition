@@ -5,6 +5,7 @@
     --theme-color-1: #94afec;
     --theme-color-2: #b3dfcf;
     --theme-color-3: #eee346;
+    --theme-color-4: #ec2969;
 }
 
 body {
@@ -153,9 +154,16 @@ body {
 .scenario-header {
     display: flex;
     justify-content: space-between;
-    border-left: var(--theme-color-3) 10px solid;
     align-items: baseline;
     padding: 0 5px;
+
+    &.alternative {
+        border-left: var(--theme-color-3) 10px solid;
+    }
+
+    &.baseline {
+        border-left: var(--theme-color-4) 10px solid;
+    }
 }
 
 .no-marker {
