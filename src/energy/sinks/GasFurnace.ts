@@ -77,6 +77,7 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
     id: string = Sinks.gasFurnace;
     public static displayName: string = 'Gas furnace';
-    purpose: Purpose = 'Space heating';
+    public static purpose: Purpose = 'Space heating';
+    purpose: Purpose = GasFurnace.purpose;
     displayName = GasFurnace.displayName;
 }

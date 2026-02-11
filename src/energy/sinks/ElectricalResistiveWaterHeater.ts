@@ -29,7 +29,8 @@ export class ElectricalResistiveWaterHeater implements IDirectUsageBasedCharge {
         .filter(o => uom ? uom == o.uom : true)
         .map(o => o.formatted()).join(', ');
     public static displayName = 'Electric resistive water heater';
-    public displayName = ElectricalResistiveWaterHeater.displayName;
     public id = Sinks.electricalResistiveWaterHeater;
-    public purpose: Purpose = 'Water heating';
+    public static purpose: Purpose = 'Water heating';
+    purpose: Purpose = ElectricalResistiveWaterHeater.purpose;
+    public displayName = ElectricalResistiveWaterHeater.displayName;
 }

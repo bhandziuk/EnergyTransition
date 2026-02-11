@@ -31,34 +31,56 @@ const sinkNames = {
     [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
 }
 
+const sinkPurposes = {
+    [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.purpose,
+    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
+    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
+    [Sinks.gasFurnace]: GasFurnace.purpose,
+    [Sinks.gasWaterHeater]: GasWaterHeater.purpose,
+    [Sinks.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.purpose,
+    [Sinks.airConditioner]: AirConditioner.purpose,
+    [Sinks.hybridAirHeatPump]: HybridAirHeatPump.purpose,
+    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
+    [Sinks.heatPumpWaterHeater]: HeatPumpWaterHeater.purpose,
+    // [Sinks.gasDryer]: gasDryer.purpose,
+    // [Sinks.gasGrill]: gasGrill.purpose,
+    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
+}
+
 const initialBaselineSinks = [
-    { id: Sinks.dualFuelAirHeatPump, selected: false },
-    { id: Sinks.gasFurnace, selected: true },
-    { id: Sinks.gasWaterHeater, selected: true },
-    { id: Sinks.otherHouseholdElectricalUsage, selected: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
-    { id: Sinks.airConditioner, selected: true },
-    { id: Sinks.hybridAirHeatPump, selected: false },
-    { id: Sinks.electricalAirHeatPump, selected: false },
-    // { id: Sinks.gasDryer, selected: false },
-    // { id: Sinks.gasGrill, selected: false },
-    { id: Sinks.electricalResistiveWaterHeater, selected: false },
+    { id: Sinks.dualFuelAirHeatPump, selected: false, required: false },
+    { id: Sinks.gasFurnace, selected: true, required: false },
+    { id: Sinks.gasWaterHeater, selected: true, required: false },
+    { id: Sinks.otherHouseholdElectricalUsage, selected: true, required: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
+    { id: Sinks.airConditioner, selected: true, required: false },
+    { id: Sinks.hybridAirHeatPump, selected: false, required: false },
+    { id: Sinks.electricalAirHeatPump, selected: false, required: false },
+    // { id: Sinks.gasDryer, selected: false, required: false },
+    // { id: Sinks.gasGrill, selected: false, required: false },
+    { id: Sinks.electricalResistiveWaterHeater, selected: false, required: false },
 ];
 
 const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
 
 const baselineSinksComponent = () => <>
-    <ul>
-        {baselineSinks().toSorted((a, b) => sinkNames[a.id].localeCompare(sinkNames[b.id]))
-            .map(sink =>
-                <li class="no-marker">
-                    <input type="checkbox"
-                        id={sink.id}
-                        checked={sink.selected}
-                        oninput={e => setBaselineSinks(baselineSinks().filter(o => o.id != sink.id).concat([{ id: sink.id, selected: e.target.checked }]))} />
-                    <label for={sink.id}>{sinkNames[sink.id]}</label>
-                </li>
-            )}
-    </ul>
+    {groupBy(baselineSinks().filter(o => !o.required), o => sinkPurposes[o.id])
+        .map(o => <>
+            <div>{o.key}</div>
+            <ul>
+                {o.value
+                    .toSorted((a, b) => sinkNames[a.id].localeCompare(sinkNames[b.id]))
+                    .map(sink =>
+                        <li class="no-marker">
+                            <input type="checkbox"
+                                id={sink.id}
+                                checked={sink.selected}
+                                disabled={sink.required}
+                                oninput={e => setBaselineSinks(baselineSinks().filter(o => o.id != sink.id).concat([{ id: sink.id, selected: e.target.checked, required: sink.required }]))} />
+                            <label for={sink.id}>{sinkNames[sink.id]}</label>
+                        </li>
+                    )}
+            </ul>
+        </>)}
 </>
 
 const [gasThermRate, setGasThermRate] = createSignal(0.75);
@@ -258,7 +280,7 @@ const EnergyCalculator: Component = (props) => {
             <p>
                 This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/">Residential Service</a> plan.
             </p>
-            <h2>What are your current gas appliances?</h2>
+            <h2>What are your current household appliances?</h2>
             <small>Not all of these work yet</small>
             {baselineSinksComponent()}
             <h2>What was your {year()} utility usage?</h2>

@@ -15,6 +15,7 @@ export class OtherHouseholdElectricalUsage implements IDirectUsageBasedCharge {
     public usageFormatted = () => new MeasuredValue(this.usage.reduce((acc, val) => acc + val.usage.value, 0), 'kWh').formatted();
     public static displayName: string = 'All other household electrical uses';
     id: string = Sinks.otherHouseholdElectricalUsage;
-    purpose: Purpose = 'Other';
+    public static purpose: Purpose = 'Other';
+    purpose: Purpose = OtherHouseholdElectricalUsage.purpose;
     displayName: string = OtherHouseholdElectricalUsage.displayName;
 }

@@ -56,6 +56,7 @@ export class GasWaterHeater implements IDirectUsageBasedCharge, IProportionUse {
 
     id: string = Sinks.gasWaterHeater;
     public static displayName: string = 'Gas water heater';
-    purpose: Purpose = 'Water heating';
+    public static purpose: Purpose = 'Water heating';
+    purpose: Purpose = GasWaterHeater.purpose;
     displayName: string = GasWaterHeater.displayName;
 }

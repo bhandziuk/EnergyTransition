@@ -34,7 +34,8 @@ export class AirConditioner implements IDirectUsageBasedCharge {
         .map(o => o.formatted()).join(', ');
     public static displayName: string = 'Air conditioner';
     public id: string = Sinks.airConditioner;
-    public purpose: Purpose = 'Space heating';
+    public static purpose: Purpose = 'Space heating';
+    purpose: Purpose = AirConditioner.purpose;
     displayName = AirConditioner.displayName;
 }
 

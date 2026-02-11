@@ -31,5 +31,6 @@ export class HeatPumpWaterHeater implements IDirectUsageBasedCharge {
     public static displayName = 'Heat pump water heater';
     public displayName = HeatPumpWaterHeater.displayName;
     public id = Sinks.electricalResistiveWaterHeater;
-    public purpose: Purpose = 'Water heating';
+    public static purpose: Purpose = 'Water heating';
+    purpose: Purpose = HeatPumpWaterHeater.purpose;
 }
