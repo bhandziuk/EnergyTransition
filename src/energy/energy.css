@@ -176,6 +176,7 @@ input {
 
 input[type="checkbox"] {
     accent-color: var(--theme-color-1);
+    transform: scale(1.105);
 }
 
 button {
