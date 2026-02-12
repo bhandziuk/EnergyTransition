@@ -31,7 +31,7 @@ export class DualFuelAirHeatPump implements IDirectUsageBasedCharge {
         .filter(o => uom ? uom == o.uom : true)
         .map(o => o.formatted()).join(', ');
     id = Sinks.dualFuelAirHeatPump;
-    public static displayName = 'Dual fuel heat pump (supplementary heat source: gas)';
+    public static displayName = 'Hybrid system (main heat electric heat pump, supplementary heat: gas)';
     public static purpose: Purpose = 'Space heating';
     purpose: Purpose = DualFuelAirHeatPump.purpose;
     displayName = DualFuelAirHeatPump.displayName;
