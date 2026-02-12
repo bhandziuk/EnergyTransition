@@ -22,7 +22,7 @@ export class EnergyScenario {
         private directUses: Array<IDirectUsageBasedCharge>,
         private indirectUses: Array<IIndirectUsageBasedCharge>,
         private flatCharges: Array<IFlatCharge>,
-        private rateSchedule: Array<RateSchedule>
+        private rateSchedule: () => Array<RateSchedule>
     ) { }
 
     public render: Component = (props) => {
@@ -80,7 +80,7 @@ export class EnergyScenario {
 
     private directCosts() {
         const directUsage_inScenarioUom = this.directUsage();
-        return calculateDirectCosts(this.rateSchedule, directUsage_inScenarioUom);
+        return calculateDirectCosts(this.rateSchedule(), directUsage_inScenarioUom);
     }
 
     private directUsage() {

@@ -100,6 +100,11 @@ class CombinedEnergyScenario {
             {
                 <div class="charge-row total">
                     <div class="source"><h3>Total annual cost</h3></div>
+                    <Show when={this.id != baselineScenarioId}>
+                        <div class={"usage bold " + (props.baselineCost > this.totalCost() ? 'better-cost' : props.baselineCost < this.totalCost() ? 'worse-cost' : '')}>
+                            {(props.baselineCost > this.totalCost() ? 'Savings: ' : 'Additional cost: ') + dollars(Math.abs(this.totalCost() - props.baselineCost))}
+                        </div>
+                    </Show>
                     <div class={"cost bold " + (props.baselineCost > this.totalCost() ? 'better-cost' : props.baselineCost < this.totalCost() ? 'worse-cost' : '')}>
                         {dollars(this.totalCost())}
                     </div>
@@ -114,6 +119,7 @@ class CombinedEnergyScenario {
 
     public startConversion: Component = (props) => {
         const convertibles = [...new Set(this.parts.flatMap(o => o.convertibles()))];
+        this.conversions[1](convertibles.map(o => o.id).reduce((a, v) => ({ ...a, [v]: v }), {}));
         let div: any;
         onMount(() => {
             if (div instanceof HTMLDivElement) {
@@ -124,7 +130,7 @@ class CombinedEnergyScenario {
         return <div class="scenario-breakdown" ref={div}>
             {convertibles
                 .map(o => <div>
-                    <label for={o.id}>Convert from:</label>
+                    <label for={o.id}>Convert from: </label>
                     <span id={o.id}>{o.displayName}</span>
                     <div>To:</div>
                     <ul class="no-marker">{o.canConvertTo.map(c => <li>
@@ -132,7 +138,7 @@ class CombinedEnergyScenario {
                             type="checkbox"
                             id={o.id + c}
                             checked={this.conversions[0]()[o.id] == c}
-                            oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: c }))}
+                            oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: this.conversions[0]()[o.id] == c ? o.id : c }))}
                         ></input>
                         <label for={o.id + c}>{sinkNames[c]}</label>
                     </li>)}
@@ -199,7 +205,7 @@ const [alternativeScenarios, setAlternativeScenarios] = createSignal<Array<Combi
 const gasRatesComponent = () => <div class="gas-rate-simple">
 
     <label for="gas-rate">
-        What was your gas rate last year?
+        What was your <a href="https://www.georgiagassavings.com/natural-gas-rates" rel='noopener noreferrer' target='_blank'>gas rate</a> for {year()}?
     </label>
     <input
         id="gas-rate"
@@ -228,7 +234,7 @@ function computeScenario(id: string, scenarioName: string, year: number, summary
         directUses,
         gasIndirectCharges,
         gasFlatCharges,
-        gasRateSchedule()
+        gasRateSchedule
     );
 
     const electricalFlatCharges: Array<IFlatCharge> = [
@@ -248,7 +254,7 @@ function computeScenario(id: string, scenarioName: string, year: number, summary
         directUses,
         electricalIndirectUses,
         electricalFlatCharges,
-        getElectricalRateSchedules(year)
+        () => getElectricalRateSchedules(year)
     );
 
     const combined = new CombinedEnergyScenario(id, scenarioName, [gasBaseScenario, electricalBaseScenario], () => setAlternativeScenarios(alternativeScenarios().filter(o => o.id != id)));
@@ -292,7 +298,7 @@ const EnergyCalculator: Component = (props) => {
                     This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
                 </p>
                 <p>
-                    This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/">Residential Service</a> plan.
+                    This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/" rel='noopener noreferrer' target='_blank'>Residential Service</a> plan.
                 </p>
                 <h2>What are your current household appliances?</h2>
                 <small>Not all of these work yet</small>

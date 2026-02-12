@@ -64,6 +64,9 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
             return new ElectricalAirHeatPump(this.year, newUsage);
         }
+        else if (toSink == this.id) {
+            return this;
+        }
         else {
             throw new Error("Cannot convert this to that.");
         }

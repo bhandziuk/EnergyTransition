@@ -43,6 +43,9 @@ export class GasWaterHeater implements IDirectUsageBasedCharge, IProportionUse {
                 );
             return new HeatPumpWaterHeater(this.year, newUsage);
         }
+        else if (toSink == this.id) {
+            return this;
+        }
         else {
             throw new Error("Cannot convert this to that.");
         }
