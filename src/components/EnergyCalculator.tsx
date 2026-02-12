@@ -48,7 +48,7 @@ const initialBaselineSinks = [
     { id: Sinks.gasFurnace, selected: true, required: false },
     { id: Sinks.gasWaterHeater, selected: true, required: false },
     { id: Sinks.otherHouseholdElectricalUsage, selected: true, required: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
-    { id: Sinks.airConditioner, selected: true, required: false },
+    { id: Sinks.airConditioner, selected: true, required: true },
     { id: Sinks.hybridAirHeatPump, selected: false, required: false },
     { id: Sinks.electricalAirHeatPump, selected: false, required: false },
     // { id: Sinks.gasDryer, selected: false, required: false },
