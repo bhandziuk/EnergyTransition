@@ -1,10 +1,10 @@
-import { Sinks } from ".";
-import { UserUsageSummary } from "../../components";
-import cdd from '../../data/coolingDegreeDays.dunwoody.json';
-import { groupBy } from "../../helpers";
-import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
-import { IMonthUsage } from "../MonthUsage";
-import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges";
+import { Sinks } from "..";
+import { UserUsageSummary } from "../../../components";
+import cdd from '../../../data/coolingDegreeDays.dunwoody.json';
+import { groupBy } from "../../../helpers";
+import { MeasuredValue, UnitOfMeasure } from "../../MeasuredValue";
+import { IMonthUsage } from "../../MonthUsage";
+import { IDirectUsageBasedCharge, Purpose } from "../../usageBasedCharges";
 
 export class AirConditioner implements IDirectUsageBasedCharge {
     constructor(private year: number, inputUsage: UserUsageSummary | Array<IMonthUsage>) {
@@ -33,7 +33,7 @@ export class AirConditioner implements IDirectUsageBasedCharge {
         .filter(o => uom ? uom == o.uom : true)
         .map(o => o.formatted()).join(', ');
     public static displayName: string = 'Air conditioner';
-    public id: string = Sinks.airConditioner;
+    public id: string = Sinks.electric.airConditioner;
     public static purpose: Purpose = 'Space heating';
     purpose: Purpose = AirConditioner.purpose;
     displayName = AirConditioner.displayName;

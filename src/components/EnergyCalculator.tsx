@@ -1,5 +1,5 @@
 import { Component, createEffect, createMemo, createSignal, onMount, Show } from "solid-js";
-import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, HybridAirHeatPump, HeatPumpWaterHeater, GeorgiaPowerBaseFee } from "../energy";
+import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, HybridAirHeatPump, HeatPumpWaterHeater, GeorgiaPowerBaseFee, GasFireplace, GasCooktop, GasGrill, GasDryer } from "../energy";
 import { createGuid, groupBy, NumberFormats } from "../helpers";
 import { summaryUsage, UserUsageSummary } from "../components";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
@@ -12,48 +12,60 @@ const year = createMemo(() => 2025);
 const summaryUsagePart = summaryUsage();
 
 export const sinkNames = {
-    [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.displayName,
-    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
-    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
-    [Sinks.gasFurnace]: GasFurnace.displayName,
-    [Sinks.gasWaterHeater]: GasWaterHeater.displayName,
-    [Sinks.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.displayName,
-    [Sinks.airConditioner]: AirConditioner.displayName,
-    [Sinks.hybridAirHeatPump]: HybridAirHeatPump.displayName,
-    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
-    [Sinks.heatPumpWaterHeater]: HeatPumpWaterHeater.displayName,
+    [Sinks.hybrid.dualFuelAirHeatPump]: DualFuelAirHeatPump.displayName,
+    [Sinks.electric.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
+    [Sinks.electric.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
+    [Sinks.gas.gasFurnace]: GasFurnace.displayName,
+    [Sinks.gas.gasWaterHeater]: GasWaterHeater.displayName,
+    [Sinks.gas.gasCooktop]: GasCooktop.displayName,
+    // [Sinks.gas.gasDryer]: GasDryer.displayName,
+    [Sinks.gas.gasGrill]: GasGrill.displayName,
+    [Sinks.gas.gasFireplace]: GasFireplace.displayName,
+    [Sinks.electric.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.displayName,
+    [Sinks.electric.airConditioner]: AirConditioner.displayName,
+    [Sinks.electric.hybridAirHeatPump]: HybridAirHeatPump.displayName,
+    [Sinks.electric.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
+    [Sinks.electric.heatPumpWaterHeater]: HeatPumpWaterHeater.displayName,
     // [Sinks.gasDryer]: gasDryer.displayName,
     // [Sinks.gasGrill]: gasGrill.displayName,
-    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
+    [Sinks.electric.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
 }
 
 export const sinkPurposes = {
-    [Sinks.dualFuelAirHeatPump]: DualFuelAirHeatPump.purpose,
-    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
-    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
-    [Sinks.gasFurnace]: GasFurnace.purpose,
-    [Sinks.gasWaterHeater]: GasWaterHeater.purpose,
-    [Sinks.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.purpose,
-    [Sinks.airConditioner]: AirConditioner.purpose,
-    [Sinks.hybridAirHeatPump]: HybridAirHeatPump.purpose,
-    [Sinks.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
-    [Sinks.heatPumpWaterHeater]: HeatPumpWaterHeater.purpose,
+    [Sinks.hybrid.dualFuelAirHeatPump]: DualFuelAirHeatPump.purpose,
+    [Sinks.electric.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
+    [Sinks.electric.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
+    [Sinks.gas.gasFurnace]: GasFurnace.purpose,
+    [Sinks.gas.gasWaterHeater]: GasWaterHeater.purpose,
+    [Sinks.gas.gasCooktop]: GasCooktop.purpose,
+    //[Sinks.gas.gasDryer]: GasDryer.purpose,
+    [Sinks.gas.gasGrill]: GasGrill.purpose,
+    [Sinks.gas.gasFireplace]: GasFireplace.purpose,
+    [Sinks.electric.otherHouseholdElectricalUsage]: OtherHouseholdElectricalUsage.purpose,
+    [Sinks.electric.airConditioner]: AirConditioner.purpose,
+    [Sinks.electric.hybridAirHeatPump]: HybridAirHeatPump.purpose,
+    [Sinks.electric.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
+    [Sinks.electric.heatPumpWaterHeater]: HeatPumpWaterHeater.purpose,
     // [Sinks.gasDryer]: gasDryer.purpose,
     // [Sinks.gasGrill]: gasGrill.purpose,
-    [Sinks.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
+    [Sinks.electric.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
 }
 
 const initialBaselineSinks = [
-    { id: Sinks.dualFuelAirHeatPump, selected: false, required: false },
-    { id: Sinks.gasFurnace, selected: true, required: false },
-    { id: Sinks.gasWaterHeater, selected: true, required: false },
-    { id: Sinks.otherHouseholdElectricalUsage, selected: true, required: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
-    { id: Sinks.airConditioner, selected: true, required: true },
-    { id: Sinks.hybridAirHeatPump, selected: false, required: false },
-    { id: Sinks.electricalAirHeatPump, selected: false, required: false },
+    { id: Sinks.hybrid.dualFuelAirHeatPump, selected: false, required: false },
+    { id: Sinks.gas.gasFurnace, selected: true, required: false },
+    { id: Sinks.gas.gasWaterHeater, selected: true, required: false },
+    { id: Sinks.gas.gasCooktop, selected: false, required: false },
+    //{ id: Sinks.gas.gasDryer, selected: false, required: false },
+    { id: Sinks.gas.gasGrill, selected: false, required: false },
+    { id: Sinks.gas.gasFireplace, selected: false, required: false },
+    { id: Sinks.electric.otherHouseholdElectricalUsage, selected: true, required: true }, // todo this should be forcefully added later (i.e. cannot be unchecked)
+    { id: Sinks.electric.airConditioner, selected: true, required: true },
+    { id: Sinks.electric.hybridAirHeatPump, selected: false, required: false },
+    { id: Sinks.electric.electricalAirHeatPump, selected: false, required: false },
     // { id: Sinks.gasDryer, selected: false, required: false },
     // { id: Sinks.gasGrill, selected: false, required: false },
-    { id: Sinks.electricalResistiveWaterHeater, selected: false, required: false },
+    { id: Sinks.electric.electricalResistiveWaterHeater, selected: false, required: false },
 ];
 
 const [baselineSinks, setBaselineSinks] = createSignal(initialBaselineSinks);
@@ -271,7 +283,11 @@ const scenarios = createMemo<Component>(() => {
         new GasWaterHeater(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
         new AirConditioner(year(), summaryUsage),
         new DualFuelAirHeatPump(year(), summaryUsage),
-        new HybridAirHeatPump(year(), summaryUsage)
+        new HybridAirHeatPump(year(), summaryUsage),
+        new GasGrill(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
+        new GasFireplace(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
+        new GasDryer(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
+        new GasCooktop(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
     ]
         .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));
 

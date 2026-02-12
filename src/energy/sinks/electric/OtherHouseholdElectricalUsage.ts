@@ -1,9 +1,8 @@
-import { Sinks } from ".";
-import { UserUsageSummary } from "../../components";
-import { MeasuredValue } from "../MeasuredValue";
-import { IMonthUsage } from "../MonthUsage";
-import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
-
+import { Sinks } from "..";
+import { UserUsageSummary } from "../../../components";
+import { MeasuredValue } from "../../MeasuredValue";
+import { IMonthUsage } from "../../MonthUsage";
+import { IDirectUsageBasedCharge, Purpose } from "../../usageBasedCharges";
 
 export class OtherHouseholdElectricalUsage implements IDirectUsageBasedCharge {
     constructor(summaryUsage: UserUsageSummary) {
@@ -14,7 +13,7 @@ export class OtherHouseholdElectricalUsage implements IDirectUsageBasedCharge {
 
     public usageFormatted = () => new MeasuredValue(this.usage.reduce((acc, val) => acc + val.usage.value, 0), 'kWh').formatted();
     public static displayName: string = 'All other household electrical uses';
-    id: string = Sinks.otherHouseholdElectricalUsage;
+    id: string = Sinks.electric.otherHouseholdElectricalUsage;
     public static purpose: Purpose = 'Other';
     purpose: Purpose = OtherHouseholdElectricalUsage.purpose;
     displayName: string = OtherHouseholdElectricalUsage.displayName;

@@ -1,13 +1,13 @@
-import { DualFuelAirHeatPump, ElectricalAirHeatPump, Sinks } from ".";
-import { UserUsageSummary } from "../../components";
-import hdd from '../../data/heatingDegreeDays.dunwoody.json';
-import { groupBy } from "../../helpers";
-import { MeasuredValue, UnitOfMeasure } from "../MeasuredValue";
-import { IMonthUsage } from "../MonthUsage";
-import { IDirectUsageBasedCharge, Purpose } from "../usageBasedCharges/UsageBasedCharge";
-import { HybridAirHeatPump } from "./HybridAirHeatPump";
-import { IProportionUse } from "./IProportionUse";
-
+import { DualFuelAirHeatPump, Sinks } from "..";
+import { UserUsageSummary } from "../../../components";
+import hdd from '../../../data/heatingDegreeDays.dunwoody.json';
+import { groupBy } from "../../../helpers";
+import { MeasuredValue, UnitOfMeasure } from "../../MeasuredValue";
+import { IMonthUsage } from "../../MonthUsage";
+import { IDirectUsageBasedCharge, Purpose } from "../../usageBasedCharges/UsageBasedCharge";
+import { ElectricalAirHeatPump } from "../electric";
+import { HybridAirHeatPump } from "../electric/HybridAirHeatPump";
+import { IProportionUse } from "../IProportionUse";
 
 export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
@@ -22,12 +22,12 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
         const heatingOnly = Math.max(0, (highestUsedTherms?.value ?? 0) - (lowestUsedTherms?.value ?? 0));
 
         const thermUsage = thisYearHdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(heatingOnly * o.hdd / highestHdd.hdd, 'therm') });
-        //const electricalUsage = thermUsage.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(o.usage.value / 2, 'kWh') });
+
         this.usage = thermUsage;//.concat(electricalUsage);
     }
-    canConvertTo: string[] = [Sinks.dualFuelAirHeatPump, Sinks.electricalAirHeatPump, Sinks.hybridAirHeatPump];
+    canConvertTo: string[] = [Sinks.hybrid.dualFuelAirHeatPump, Sinks.electric.electricalAirHeatPump, Sinks.electric.hybridAirHeatPump];
     convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
-        if (toSink == Sinks.dualFuelAirHeatPump) {
+        if (toSink == Sinks.hybrid.dualFuelAirHeatPump) {
 
             // break down gas usage into 
             // 75% of heating is electric. Remainder remains gas.   
@@ -41,7 +41,7 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
             return new DualFuelAirHeatPump(this.year, newUsage);
         }
-        else if (toSink == Sinks.hybridAirHeatPump) {
+        else if (toSink == Sinks.electric.hybridAirHeatPump) {
 
             // break down gas usage into 
             // 75% of heating is electric. Remainder remains resistive coils.   
@@ -55,7 +55,7 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
             return new HybridAirHeatPump(this.year, newUsage);
         }
-        else if (toSink == Sinks.electricalAirHeatPump) {
+        else if (toSink == Sinks.electric.electricalAirHeatPump) {
 
             // break down gas usage into 
             // 75% of heating is electric. Remainder remains resistive coils.   
@@ -78,7 +78,7 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
         .filter(o => uom ? uom == o.uom : true)
         .map(o => o.formatted()).join(', ');
 
-    id: string = Sinks.gasFurnace;
+    id: string = Sinks.gas.gasFurnace;
     public static displayName: string = 'Gas furnace';
     public static purpose: Purpose = 'Space heating';
     purpose: Purpose = GasFurnace.purpose;
