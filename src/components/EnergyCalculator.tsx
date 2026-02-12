@@ -130,9 +130,7 @@ class CombinedEnergyScenario {
         return <div class="scenario-breakdown" ref={div}>
             {convertibles
                 .map(o => <div>
-                    <label for={o.id}>Convert from: </label>
-                    <span id={o.id}>{o.displayName}</span>
-                    <div>To:</div>
+                    <span id={o.id}>Convert your <span class="bold">{o.displayName}</span> to:</span>
                     <ul class="no-marker">{o.canConvertTo.map(c => <li>
                         <input
                             type="checkbox"
