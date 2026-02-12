@@ -203,7 +203,7 @@ const [alternativeScenarios, setAlternativeScenarios] = createSignal<Array<Combi
 const gasRatesComponent = () => <div class="gas-rate-simple">
 
     <label for="gas-rate">
-        What was your <a href="https://www.georgiagassavings.com/natural-gas-rates" rel='noopener noreferrer' target='_blank'>gas rate</a> for {year()}?
+        What was your <a href="https://www.georgiagassavings.com/natural-gas-rates" rel='noopener noreferrer' target='_blank'>contracted gas rate</a> for {year()}?
     </label>
     <input
         id="gas-rate"

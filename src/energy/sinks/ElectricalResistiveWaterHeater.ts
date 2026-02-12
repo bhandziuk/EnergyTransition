@@ -28,7 +28,7 @@ export class ElectricalResistiveWaterHeater implements IDirectUsageBasedCharge {
         .map(group => new MeasuredValue(group.value.reduce((acc, val) => acc + val.usage.value, 0), group.key))
         .filter(o => uom ? uom == o.uom : true)
         .map(o => o.formatted()).join(', ');
-    public static displayName = 'Electric resistive water heater';
+    public static displayName = 'Conventional electric resistive water heater';
     public id = Sinks.electricalResistiveWaterHeater;
     public static purpose: Purpose = 'Water heating';
     purpose: Purpose = ElectricalResistiveWaterHeater.purpose;
