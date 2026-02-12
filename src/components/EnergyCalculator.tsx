@@ -148,7 +148,7 @@ class CombinedEnergyScenario {
             <div>
                 {convertibles
                     .filter(o => this.conversions[0]()[o.id])
-                    .map(o => <div>{o.displayName + ' --> ' + sinkNames[this.conversions[0]()[o.id]]}</div>)}
+                    .map(o => <div>{o.displayName + ' ➞ ' + sinkNames[this.conversions[0]()[o.id]]}</div>)}
             </div>
             <button
                 disabled={convertibles.some(o => !this.conversions[0]()[o.id])}
