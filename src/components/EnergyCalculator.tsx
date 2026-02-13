@@ -114,7 +114,7 @@ class CombinedEnergyScenario {
                 <Show when={this.id == baselineScenarioId}><button class="start-conversion" onclick={setShowNewConverter}>Add electrification scenario</button></Show>
             </div>
             {this.parts.map(part => part.render(props))}
-            {
+            <div class="scenario-source-section">
                 <div class="charge-row total">
                     <div class="source"><h3>Total annual cost</h3></div>
                     <Show when={this.id != baselineScenarioId}>
@@ -126,7 +126,7 @@ class CombinedEnergyScenario {
                         {dollars(this.totalCost())}
                     </div>
                 </div>
-            }
+            </div>
         </div >
     }
 

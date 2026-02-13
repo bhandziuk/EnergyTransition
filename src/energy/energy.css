@@ -12,6 +12,7 @@ body {
     background: var(--theme-color-2);
     font-family: Sans-Serif;
     margin: 0;
+    box-sizing: border-box;
 }
 
 #root {
@@ -36,10 +37,23 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+.charge-row {
+    .cost {
+        padding-right: 2em;
+    }
+}
+
+.total-row {
+    .cost {
+        padding-right: 2em;
+    }
+}
+
 .charge-row,
 .total-row {
     display: inline-grid;
     width: 100%;
+    box-sizing: border-box;
     grid-template-columns: [source] 3fr [usage] 1fr [usage-uom] 1fr [cost] 1fr;
     align-items: center;
 
@@ -62,7 +76,6 @@ body {
     .cost {
         grid-area: cost;
         text-align: right;
-        padding-right: 2em;
     }
 }
 
@@ -280,7 +293,7 @@ button {
 
 .gas-rate-simple {
     display: grid;
-    grid-template-columns: auto 10em max-content;
+    grid-template-columns: max-content 10em max-content;
     max-width: var(--scenario-max-width);
     margin: 1em 0;
     align-items: baseline;
