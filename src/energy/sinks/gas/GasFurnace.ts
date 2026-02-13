@@ -25,7 +25,7 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
 
         this.usage = thermUsage;//.concat(electricalUsage);
     }
-    canConvertTo: string[] = [Sinks.hybrid.dualFuelAirHeatPump, Sinks.electric.electricalAirHeatPump, Sinks.electric.hybridAirHeatPump];
+    canConvertTo: string[] = [Sinks.hybrid.dualFuelAirHeatPump, Sinks.electric.electricalAirHeatPump, Sinks.electric.hybridAirHeatPump, Sinks.gas.gasFurnace];
     convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
         if (toSink == Sinks.hybrid.dualFuelAirHeatPump) {
 

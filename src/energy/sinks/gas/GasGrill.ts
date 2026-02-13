@@ -6,7 +6,7 @@ import { MeasuredValue, UnitOfMeasure } from "../../MeasuredValue";
 import { IMonthUsage } from "../../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose } from "../../usageBasedCharges/UsageBasedCharge";
 import { IProportionUse } from "../IProportionUse";
-import { WoodFireplace } from "../other/WoodFireplace";
+import { NothingSink } from "../other/NothingSink";
 
 
 export class GasGrill implements IDirectUsageBasedCharge, IProportionUse {
@@ -17,13 +17,13 @@ export class GasGrill implements IDirectUsageBasedCharge, IProportionUse {
         this.usage = proportionDistributeGas(summaryUsage, this.id, thisYearHdd, appliancesInUse);
     }
 
-    canConvertTo: string[] = [Sinks.other.woodFireplace];
+    canConvertTo: string[] = [Sinks.other.nothing, Sinks.gas.gasGrill];
     convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
         if (toSink == this.id) {
             return this;
         }
         else {
-            return new WoodFireplace();
+            return new NothingSink();
         }
     };
 

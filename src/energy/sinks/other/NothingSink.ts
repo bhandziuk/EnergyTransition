@@ -4,7 +4,7 @@ import { MeasuredValue, UnitOfMeasure } from "../../MeasuredValue";
 import { IMonthUsage } from "../../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose } from "../../usageBasedCharges/UsageBasedCharge";
 
-export class WoodFireplace implements IDirectUsageBasedCharge {
+export class NothingSink implements IDirectUsageBasedCharge {
 
     constructor() {
         this.usage = [];
@@ -16,9 +16,9 @@ export class WoodFireplace implements IDirectUsageBasedCharge {
         .filter(o => uom ? uom == o.uom : true)
         .map(o => o.formatted()).join(', ');
 
-    id: string = Sinks.other.woodFireplace;
-    public static displayName: string = 'Wood fireplace';
+    id: string = Sinks.other.nothing;
+    public static displayName: string = 'Nothing';
     public static purpose: Purpose = 'Other';
-    purpose: Purpose = WoodFireplace.purpose;
-    displayName: string = WoodFireplace.displayName;
+    purpose: Purpose = NothingSink.purpose;
+    displayName: string = NothingSink.displayName;
 }

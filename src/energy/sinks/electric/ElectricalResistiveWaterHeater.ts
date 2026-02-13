@@ -11,15 +11,7 @@ export class ElectricalResistiveWaterHeater implements IDirectUsageBasedCharge {
         if (inputUsage instanceof Array) {
             this.usage = inputUsage;
         } else {
-            // const thisYearCdd = cdd.filter(o => o.year == year).toSorted((a, b) => b.cdd - a.cdd);
-            // const highestCdd = thisYearCdd[0];
-            // const lowestCdd = thisYearCdd[thisYearCdd.length - 1];
-            // const highestUsedKwh = inputUsage.highestElectrical;
-            // const lowestUsedKwh = inputUsage.lowestElectrical;
-
-            // const coolingOnly = Math.max(0, (highestUsedKwh?.value ?? 0) - (lowestUsedKwh?.value ?? 0));
-
-            // this.usage = thisYearCdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(coolingOnly * 1.1 * o.cdd / highestCdd.cdd, 'kWh') });
+            this.usage = [];
         }
     }
 

@@ -1,9 +1,10 @@
 import { Component, createEffect, createMemo, createSignal, onMount, Show } from "solid-js";
-import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, HybridAirHeatPump, HeatPumpWaterHeater, GeorgiaPowerBaseFee, GasFireplace, GasCooktop, GasGrill, GasDryer } from "../energy";
+import { IDirectUsageBasedCharge, EnergyScenario, GeorgiaPowerEnvironmentalFee, GeorgiaPowerFranchiseFee, ElectricalAirHeatPump, GasWaterHeater, GasFurnace, IIndirectUsageBasedCharge, OtherHouseholdElectricalUsage, FuelRecoveryRider, RateSchedule, DemandSideManagementResidentialRider, MeasuredValue, DualFuelAirHeatPump, ElectricalResistiveWaterHeater, Sinks, AirConditioner, getElectricalRateSchedules, HybridAirHeatPump, HeatPumpWaterHeater, GeorgiaPowerBaseFee, GasFireplace, GasCooktop, GasGrill, ElectricCooktop, WoodFireplace } from "../energy";
 import { createGuid, groupBy, NumberFormats } from "../helpers";
 import { summaryUsage, UserUsageSummary } from "../components";
 import { AglBaseCharge, GasMarketerFee, IFlatCharge } from "../costs";
 import { setInputElementValue } from "./NumberInput";
+import { NothingSink } from "../energy/sinks/other/NothingSink";
 
 const dollars = NumberFormats.dollarsFormat().format;
 
@@ -26,9 +27,12 @@ export const sinkNames = {
     [Sinks.electric.hybridAirHeatPump]: HybridAirHeatPump.displayName,
     [Sinks.electric.electricalAirHeatPump]: ElectricalAirHeatPump.displayName,
     [Sinks.electric.heatPumpWaterHeater]: HeatPumpWaterHeater.displayName,
+    [Sinks.electric.electricCooktop]: ElectricCooktop.displayName,
     // [Sinks.gasDryer]: gasDryer.displayName,
-    // [Sinks.gasGrill]: gasGrill.displayName,
+    [Sinks.gas.gasGrill]: GasGrill.displayName,
     [Sinks.electric.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.displayName,
+    [Sinks.other.nothing]: NothingSink.displayName,
+    [Sinks.other.woodFireplace]: WoodFireplace.displayName,
 }
 
 export const sinkPurposes = {
@@ -46,8 +50,9 @@ export const sinkPurposes = {
     [Sinks.electric.hybridAirHeatPump]: HybridAirHeatPump.purpose,
     [Sinks.electric.electricalAirHeatPump]: ElectricalAirHeatPump.purpose,
     [Sinks.electric.heatPumpWaterHeater]: HeatPumpWaterHeater.purpose,
+    [Sinks.electric.electricCooktop]: ElectricCooktop.purpose,
     // [Sinks.gasDryer]: gasDryer.purpose,
-    // [Sinks.gasGrill]: gasGrill.purpose,
+    [Sinks.gas.gasGrill]: GasGrill.purpose,
     [Sinks.electric.electricalResistiveWaterHeater]: ElectricalResistiveWaterHeater.purpose,
 }
 
@@ -130,8 +135,18 @@ class CombinedEnergyScenario {
     private conversions = createSignal<{ [from: string]: string }>({});
 
     public startConversion: Component = (props) => {
-        const convertibles = [...new Set(this.parts.flatMap(o => o.convertibles()))];
+        const convertibles = [...new Set(this.parts.flatMap(o => o.convertibles()))]
+            .map(o => Object.assign({},
+                o,
+                {
+                    canConvertToDetails: o.canConvertTo
+                        .map((c, index) => ({ name: c == o.id ? 'Keep as-is' : sinkNames[c], ordinal: c == o.id ? -1 : index, id: c }))
+                        .toSorted((a, b) => a.ordinal - b.ordinal)
+                }
+            ));
+
         this.conversions[1](convertibles.map(o => o.id).reduce((a, v) => ({ ...a, [v]: v }), {}));
+
         let div: any;
         onMount(() => {
             if (div instanceof HTMLDivElement) {
@@ -143,23 +158,23 @@ class CombinedEnergyScenario {
             {convertibles
                 .map(o => <div>
                     <span id={o.id}>Convert your <span class="bold">{o.displayName}</span> to:</span>
-                    <ul class="no-marker">{o.canConvertTo.map(c => <li>
+                    <ul class="no-marker">{o.canConvertToDetails.map(c => <li>
                         <input
                             type="checkbox"
-                            id={o.id + c}
-                            checked={this.conversions[0]()[o.id] == c}
-                            oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: this.conversions[0]()[o.id] == c ? o.id : c }))}
+                            id={o.id + c.id}
+                            checked={this.conversions[0]()[o.id] == c.id}
+                            oninput={(e) => this.conversions[1](Object.assign({}, this.conversions[0](), { [o.id]: this.conversions[0]()[o.id] == c.id ? o.id : c.id }))}
                         ></input>
-                        <label for={o.id + c}>{sinkNames[c]}</label>
+                        <label for={o.id + c.id}>{c.name}</label>
                     </li>)}
                     </ul>
                 </div>)
             }
-            <div>
+            {/* <div>
                 {convertibles
                     .filter(o => this.conversions[0]()[o.id])
                     .map(o => <div>{o.displayName + ' ➞ ' + sinkNames[this.conversions[0]()[o.id]]}</div>)}
-            </div>
+            </div> */}
             <button
                 disabled={convertibles.some(o => !this.conversions[0]()[o.id])}
                 onclick={(e) => {
@@ -169,7 +184,6 @@ class CombinedEnergyScenario {
                     const directUses = nonConverted.concat(converted);
 
                     const gasUsages = directUses.flatMap(o => o.usage.filter(o => o.usage.uom == 'CCF' || o.usage.uom == 'therm'))
-
                         .map(o => ({ month: o.month, usage: o.usage.toCcf(year(), o.month)! }));
 
                     const electricalUsages = directUses.flatMap(o => o.usage
@@ -286,7 +300,7 @@ const scenarios = createMemo<Component>(() => {
         new HybridAirHeatPump(year(), summaryUsage),
         new GasGrill(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
         new GasFireplace(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
-        new GasDryer(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
+        // new GasDryer(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
         new GasCooktop(year(), summaryUsage, baselineSinks().filter(o => o.selected).map(o => o.id)),
     ]
         .filter(o => baselineSinks().filter(s => s.selected).map(s => s.id).includes(o.id));

@@ -5,8 +5,8 @@ import { groupBy, proportionDistributeGas } from "../../../helpers";
 import { MeasuredValue, UnitOfMeasure } from "../../MeasuredValue";
 import { IMonthUsage } from "../../MonthUsage";
 import { IDirectUsageBasedCharge, Purpose } from "../../usageBasedCharges/UsageBasedCharge";
+import { ElectricCooktop } from "../electric/ElectricCooktop";
 import { IProportionUse } from "../IProportionUse";
-import { WoodFireplace } from "../other/WoodFireplace";
 
 
 export class GasCooktop implements IDirectUsageBasedCharge, IProportionUse {
@@ -17,13 +17,14 @@ export class GasCooktop implements IDirectUsageBasedCharge, IProportionUse {
         this.usage = proportionDistributeGas(summaryUsage, this.id, thisYearHdd, appliancesInUse);
     }
 
-    canConvertTo: string[] = [Sinks.other.woodFireplace];
+    canConvertTo: string[] = [Sinks.electric.electricCooktop, Sinks.gas.gasCooktop];
     convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
         if (toSink == this.id) {
             return this;
         }
         else {
-            return new WoodFireplace();
+            const electricUsage = this.usage.map(o => (<IMonthUsage>{ month: o.month, usage: o.usage.toKwh(this.year, o.month) }));
+            return new ElectricCooktop(this.year, electricUsage);
         }
     };
 

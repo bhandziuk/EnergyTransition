@@ -17,7 +17,7 @@ export class GasWaterHeater implements IDirectUsageBasedCharge, IProportionUse {
         this.usage = proportionDistributeGas(summaryUsage, this.id, thisYearHdd, appliancesInUse);
     }
 
-    canConvertTo: string[] = [Sinks.electric.heatPumpWaterHeater, Sinks.electric.electricalResistiveWaterHeater];
+    canConvertTo: string[] = [Sinks.electric.heatPumpWaterHeater, Sinks.electric.electricalResistiveWaterHeater, Sinks.gas.gasWaterHeater];
     convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
         if (toSink == Sinks.electric.electricalResistiveWaterHeater) {
 
