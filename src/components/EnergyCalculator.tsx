@@ -321,18 +321,20 @@ const EnergyCalculator: Component = (props) => {
     return (
         <>
             <div class="initial-info">
-                <h1>Home Energy Use Calculator</h1>
-                <p>
-                    This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
-                </p>
-                <p>
-                    This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/" rel='noopener noreferrer' target='_blank'>Residential Service</a> plan.
-                </p>
-                <h2>What are your current household appliances?</h2>
-                {baselineSinksComponent()}
-                <h2>What was your {year()} utility usage?</h2>
-                <summaryUsagePart.SummaryUsage />
-                {gasRatesComponent()}
+                <div>
+                    <h1>Home Energy Use Calculator</h1>
+                    <p>
+                        This process will estimate what your current gas and electrical usage is. Then allow you to change out the gas appliances for more efficient alternatives. You'll be able to compare the cost between these scenarios for the same time period.
+                    </p>
+                    <p>
+                        This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/" rel='noopener noreferrer' target='_blank'>Residential Service</a> plan.
+                    </p>
+                    <h2>What are your current household appliances?</h2>
+                    {baselineSinksComponent()}
+                    <h2>What was your {year()} utility usage?</h2>
+                    <summaryUsagePart.SummaryUsage />
+                    {gasRatesComponent()}
+                </div>
             </div>
             {scenarios()}
         </>

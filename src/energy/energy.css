@@ -14,8 +14,18 @@ body {
     margin: 0;
 }
 
+#root {
+    display: inline-grid;
+}
+
 .initial-info {
     padding: 0 8px;
+
+    >* {
+        position: sticky;
+        left: 8px;
+        display: inline-block;
+    }
 }
 
 .charge-row {
@@ -57,7 +67,6 @@ body {
 
 .scenarios {
     display: flex;
-    overflow: auto;
 
     @media (min-width:320px) {
         /* smartphones, iPhone, portrait 480x320 phones */
