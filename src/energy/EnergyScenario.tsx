@@ -37,7 +37,7 @@ export class EnergyScenario {
                     {this.renderIndirectUsageCharges(props)}
                     {this.renderTaxCharges(props)}
                     <div class="total-row">
-                        <div class="source"><h3>{this.scenarioFuelType} total costs</h3></div>
+                        <div class="source"><h3>{this.scenarioFuelType} costs total</h3></div>
                         <div class="cost bold">{dollars(totalCharges)}</div>
                     </div>
                 </div>
@@ -113,20 +113,22 @@ export class EnergyScenario {
         const taxableSubtotal_dollars = this.taxableSubtotalCost();
 
         return <Show when={this.taxes.length}>
-            <h4>Tax</h4>
-            {
-                this.taxes.map(o =>
-                    <div class="charge-row">
-                        <div class="source">{o.source}</div>
-                        <div class="usage">{o.usageFormatted()}</div>
-                        <div class="cost">{dollars(o.cost(taxableSubtotal_dollars))}</div>
-                    </div>
-                )
-            }
-            <div class="charge-row total">
-                <div class="source"><h4>Tax cost</h4></div>
-                <div class="cost bold">{dollars(this.taxCost(taxableSubtotal_dollars))}</div>
-            </div>
+            <details><summary>
+                <div class="charge-row total">
+                    <div class="source"><h4>Tax</h4></div>
+                    <div class="cost bold">{dollars(this.taxCost(taxableSubtotal_dollars))}</div>
+                </div>
+            </summary>
+                {
+                    this.taxes.map(o =>
+                        <div class="charge-row">
+                            <div class="source">{o.source}</div>
+                            <div class="usage">{o.usageFormatted()}</div>
+                            <div class="cost">{dollars(o.cost(taxableSubtotal_dollars))}</div>
+                        </div>
+                    )
+                }
+            </details>
         </Show>
     }
 
@@ -136,63 +138,74 @@ export class EnergyScenario {
         const indirectCosts_dollars = this.indirectCosts();
 
         return <Show when={this.indirectUses.length}>
-            <h4>Service subtotal</h4>
-            {
-                this.indirectUses.map(o =>
-                    <div class="charge-row">
-                        <div class="source">{o.source}</div>
-                        <div class="usage">{o.usageFormatted()}</div>
-                        <div class="cost">{dollars(o.annualCost(directCosts_dollars, directUsage_inScenarioUom))}</div>
+            <details>
+                <summary>
+                    <div class="charge-row total">
+                        <div class="source"><h4>Service subtotal</h4></div>
+                        <div class="cost bold">{dollars(indirectCosts_dollars)}</div>
                     </div>
-                )
-            }
-            <div class="charge-row total">
-                <div class="source"><h4>Service subtotal cost</h4></div>
-                <div class="cost bold">{dollars(indirectCosts_dollars)}</div>
-            </div>
+                </summary>
+                {
+                    this.indirectUses.map(o =>
+                        <div class="charge-row">
+                            <div class="source">{o.source}</div>
+                            <div class="usage">{o.usageFormatted()}</div>
+                            <div class="cost">{dollars(o.annualCost(directCosts_dollars, directUsage_inScenarioUom))}</div>
+                        </div>
+                    )
+                }
+            </details>
+
+
         </Show>
     }
 
     private renderDirectUsageCharges: Component = (props: any) => {
         return <Show when={this.directUses.filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom)).length}>
-            <h4>Volumetric usage base charges</h4>
-            {
-                this.directUses
-                    .filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom))
-                    .map(o =>
-                        <div class="charge-row">
-                            <div class="source">{o.displayName}</div>
-                            <div class="usage">{o.usageFormatted(this.scenarioUom)}</div>
+            <details>
+                <summary>
+                    {/* <h4>Volumetric usage base charges</h4> */}
+                    <div class="charge-row total">
+                        <div class="source"><h4>Volumetric usage base charges</h4></div>
+                        <div class="usage bold">{this.directUsage()
+                            .filter(o => o.usage.uom == this.scenarioUom)
+                            .reduce((acc, val) => acc.combine([val.usage]).find(o => o.uom == this.scenarioUom)!, new MeasuredValue(0, this.scenarioUom))
+                            .formatted()}
                         </div>
-                    )
-            }
-            <div class="charge-row total">
-                <div class="source"><h4>Total usage costs</h4></div>
-                <div class="usage bold">{this.directUsage()
-                    .filter(o => o.usage.uom == this.scenarioUom)
-                    .reduce((acc, val) => acc.combine([val.usage]).find(o => o.uom == this.scenarioUom)!, new MeasuredValue(0, this.scenarioUom))
-                    .formatted()}
-                </div>
-                <div class="cost bold">{dollars(this.directCosts())}</div>
-            </div>
+                        <div class="cost bold">{dollars(this.directCosts())}</div>
+                    </div>
+                </summary>
+                {
+                    this.directUses
+                        .filter(o => o.usage.some(use => use.usage.uom == this.scenarioUom))
+                        .map(o =>
+                            <div class="charge-row">
+                                <div class="source">{o.displayName}</div>
+                                <div class="usage">{o.usageFormatted(this.scenarioUom)}</div>
+                            </div>
+                        )
+                }
+            </details>
         </ Show>
     }
 
     private renderFlatCharges: Component = (props: any) => {
         return <Show when={this.flatCharges.length}>
-            <h4>Fixed charges</h4>
-            {
-                this.flatCharges.map(o =>
-                    <div class="charge-row">
-                        <div class="source">{o.source()}</div>
-                        <div class="cost">{dollars(o.annualCost())}</div>
-                    </div>
-                )
-            }
-            <div class="charge-row total">
-                <div class="source"><h4>Total flat costs</h4></div>
-                <div class="cost bold">{dollars(this.flatCosts())}</div>
-            </div>
+            <details><summary>
+                <div class="charge-row total">
+                    <div class="source"><h4>Fixed costs</h4></div>
+                    <div class="cost bold">{dollars(this.flatCosts())}</div>
+                </div>
+            </summary>
+                {
+                    this.flatCharges.map(o =>
+                        <div class="charge-row">
+                            <div class="source">{o.source()}</div>
+                            <div class="cost">{dollars(o.annualCost())}</div>
+                        </div>
+                    )
+                }
+            </details>
         </Show>
     }
 }

@@ -1,7 +1,7 @@
 :root {
     --border-color: #36363e;
-    --scenario-max-width: 50em;
-    --scenario-min-width: 40em;
+    --scenario-max-width: 45em;
+    --scenario-min-width: 45em;
     --theme-color-1: #94afec;
     --theme-color-2: #b3dfcf;
     --theme-color-3: #eee346;
@@ -29,7 +29,7 @@ body {
 }
 
 .charge-row {
-    padding-left: 1.5em;
+    padding-left: 0.5em;
 }
 
 .charge-row:not(.total) {
@@ -38,7 +38,8 @@ body {
 
 .charge-row,
 .total-row {
-    display: grid;
+    display: inline-grid;
+    width: 100%;
     grid-template-columns: [source] 3fr [usage] 1fr [usage-uom] 1fr [cost] 1fr;
     align-items: center;
 
@@ -111,6 +112,7 @@ body {
 
 .scenario-source-section {
     padding-left: 1.5em;
+    width: 100%;
 }
 
 .scenario-source-charges-section {
@@ -303,4 +305,12 @@ input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
     /* Firefox */
+}
+
+summary {
+    list-style-position: outside;
+}
+
+summary .charge-row {
+    vertical-align: middle;
 }
