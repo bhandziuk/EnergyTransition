@@ -329,7 +329,6 @@ const EnergyCalculator: Component = (props) => {
                     This assumes you're on the Georgia Power <a href="https://psc.ga.gov/utilities/electric/georgia-power-bill-calculator/" rel='noopener noreferrer' target='_blank'>Residential Service</a> plan.
                 </p>
                 <h2>What are your current household appliances?</h2>
-                <small>Not all of these work yet</small>
                 {baselineSinksComponent()}
                 <h2>What was your {year()} utility usage?</h2>
                 <summaryUsagePart.SummaryUsage />
