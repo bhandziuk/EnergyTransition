@@ -16,7 +16,7 @@ export class HybridAirHeatPump implements IDirectUsageBasedCharge {
     }
 
     usage: Array<IMonthUsage> = [];
-    public static copHeatPump: number = 3;
+    public static copHeatPump: number = 3.5;
     public static copResistive: number = 1;
 
     usageFormatted: (uom?: UnitOfMeasure) => string = (uom) => groupBy(this.usage, o => o.usage.uom)

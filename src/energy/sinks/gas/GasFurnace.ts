@@ -22,15 +22,23 @@ export class GasFurnace implements IDirectUsageBasedCharge, IProportionUse {
         const heatingOnly = Math.max(0, (highestUsedTherms?.value ?? 0) - (lowestUsedTherms?.value ?? 0));
 
         const thermUsage = thisYearHdd.map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue(heatingOnly * o.hdd / highestHdd.hdd, 'therm') });
+        // 2 therm also adds 1 kWh
+        const kWhUsedPerTherm = 1 / 2;
 
-        this.usage = thermUsage;//.concat(electricalUsage);
+        const electricalUsage = thermUsage.map(o => <IMonthUsage>{
+            month: o.month, usage: new MeasuredValue(o.usage.value * kWhUsedPerTherm, "kWh")
+        });
+
+        this.usage = thermUsage.concat(electricalUsage);
     }
     canConvertTo: string[] = [Sinks.hybrid.dualFuelAirHeatPump, Sinks.electric.electricalAirHeatPump, Sinks.electric.hybridAirHeatPump, Sinks.gas.gasFurnace];
     convert: (toSink: string) => IDirectUsageBasedCharge = (toSink) => {
         if (toSink == Sinks.hybrid.dualFuelAirHeatPump) {
 
             // break down gas usage into 
-            // 75% of heating is electric. Remainder remains gas.   
+            // 75% of heating is electric. Remainder remains gas.
+            // TODO after therms are converted to kWh find the kWh needed for the gas that remains (associated with the fan)
+
             const newElectricalUsage = this.usage
                 .map(o => <IMonthUsage>{ month: o.month, usage: new MeasuredValue((o.usage.toKwh(this.year, o.month)?.value ?? 0) * 0.75 / DualFuelAirHeatPump.copElectrical, 'kWh') });
 

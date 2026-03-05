@@ -11,6 +11,8 @@ export class DualFuelAirHeatPump implements IDirectUsageBasedCharge {
         if (inputUsage instanceof Array) {
             this.usage = inputUsage;
         } else {
+            // TODO remember to account for the fans electricity usage when the gas is used
+
             // const thisYearCdd = cdd.filter(o => o.year == year).toSorted((a, b) => b.cdd - a.cdd);
             // const highestCdd = thisYearCdd[0];
             // const lowestCdd = thisYearCdd[thisYearCdd.length - 1];
@@ -23,7 +25,7 @@ export class DualFuelAirHeatPump implements IDirectUsageBasedCharge {
         }
     }
 
-    public static copElectrical: number = 3;
+    public static copElectrical: number = 3.5;
     public static copGas: number = 0.9;
     usage: Array<IMonthUsage> = [];
     usageFormatted: (uom?: UnitOfMeasure) => string = (uom) => groupBy(this.usage, o => o.usage.uom)
